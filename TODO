@@ -1,0 +1,120 @@
+TO DO:
+
+> Write python server to handle HTTP requests
+
+	The page should allow the user to:
+		
+		Poll the status of the coffee machine
+		Initiate a new request
+		Cancel a pending request
+
+	A request has the following parameters:
+
+		Time to start brewing for a delayed request (or NOW)
+		Water temperature
+		Amount of water
+
+	The request should then be forwarded to the board, the reply read and forwarded to the user as exit code of the request.
+
+
+> Protocol specs
+
+Message format:
+
+Requests messages
+
+{
+	ID : 32bit unsigned integer
+	CMD : [ BREW | CANCEL | STATE ]
+	USR : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	CMD_PARAM_0 : value_0
+	CMD_PARAM_1 : value_1
+	...
+	CMD_PARAM_N : value_n
+}
+
+{
+	ID : xxx
+	CMD : BREW
+	USR : xxx
+	TIME : xxx
+	\newline
+	EXEC_TIME : timestamp
+	H2O_TEMP : integer between 0 and 100
+	H2O_AMOUNT : integer between 0 and 1000
+}
+
+{
+	ID : xxx
+	CMD : CANCEL
+	USR : xxx
+	TIME : xxx
+	\newline
+	CANC_ID : xxx
+}
+
+{
+	ID : xxx
+	CMD : STATE
+	USR : xxx
+	TIME : xxx
+	\newline
+}
+
+Response messages
+
+{
+	ID : 32bit unsigned integer
+	LENGTH : 32bit unsigned integer
+	SERVER : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	RESPONSE_PARAM_0 : value_0
+	RESPONSE_PARAM_1 : value_1
+	...
+	RESPONSE_PARAM_N : value_n
+}
+
+BREW_RESPONSE: {
+	ID : xxx
+	LENGTH : 32bit unsigned integer
+	SERVER : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	STATUS : [ QUEUED | FAILED | READY ]
+	MSG : 256 char
+}
+
+CANCEL_RESPONSE: {
+	ID : xxx
+	LENGTH : 32bit unsigned integer
+	SERVER : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	STATUS : [ CANCELLED | FAILED ]
+	MSG : 256 char
+}
+
+STATE_RESPONSE: {
+	ID : xxx
+	LENGTH : 32bit unsigned integer
+	SERVER : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	H2O_TEMP : integer between 0 and 100
+	H2O_AMOUNT : integer between 0 and 1000
+}
+
+
+
+
+	
+Board spec
+
+USART1 (PA9 TX, PA10 RX) -> Serial BT 
+USART2 -> Serial dbg
+
+Pad3 is used by USART rn
+

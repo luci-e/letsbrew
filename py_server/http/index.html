@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+
+<head>
+    <meta charset="utf-8">
+    <title>Let's brew</title>
+    <meta name="author" content="Emiliano">
+    <link rel="stylesheet" href="css/style.css?v=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+</head>
+
+<body onload="init_script()">
+    <div id="center_column">
+        <div id="main_title">I'm a little teapot</div>
+
+        Make a request:<br>
+        <form id="teaform" action="index.html">
+            CMD:
+            <select name="CMD" id="cmd_selector">
+                <option value="BREW">BREW</option>
+                <option value="STATE">STATE</option>
+            </select><br>
+
+            OPTIONS:
+            <div name="cmd_param" id="BREW_params">
+                Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
+                Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
+            </div>
+
+            <button onclick="send_data('#teaform')">Let's brew</button>
+        </form>
+    </div>
+</body>
+
+</html>
