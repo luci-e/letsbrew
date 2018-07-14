@@ -25,7 +25,7 @@ Requests messages
 
 {
 	ID : 32bit unsigned integer
-	CMD : [ BREW | CANCEL | STATE ]
+	CMD : [ BREW | CANCEL | STATE | KEEPWARM ]
 	USR : 32bit unsigned integer
 	TIME : timestamp
 	\newline
@@ -43,7 +43,7 @@ Requests messages
 	\newline
 	EXEC_TIME : timestamp
 	H2O_TEMP : integer between 0 and 100
-	H2O_AMOUNT : integer between 0 and 1000
+	H2O_AMOUNT : integer between 0 and x
 }
 
 {
@@ -62,6 +62,17 @@ Requests messages
 	TIME : xxx
 	\newline
 }
+
+
+{
+	ID : xxx
+	CMD : KEEPWARM
+	USR : xxx
+	TIME : xxx
+	\newline
+	DURATION : uint32
+}
+
 
 Response messages
 
@@ -104,7 +115,17 @@ STATE_RESPONSE: {
 	TIME : timestamp
 	\newline
 	H2O_TEMP : integer between 0 and 100
-	H2O_AMOUNT : integer between 0 and 1000
+	H2O_AMOUNT : integer between 0 and x
+}
+
+KEEPWARM_RESPONSE: {
+	ID : xxx
+	LENGTH : 32bit unsigned integer
+	SERVER : 32bit unsigned integer
+	TIME : timestamp
+	\newline
+	STATUS : [ TOO_HOT | TOO_COLD ]
+	MSG : 256 char
 }
 
 
