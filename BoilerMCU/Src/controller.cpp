@@ -13,10 +13,6 @@
 
 using namespace std;
 
-
-
-
-
 Controller::Controller(HAL * usehal){
 	hal = usehal;
     state = IDLE;
@@ -48,6 +44,7 @@ const char * Controller::last_err_to_str(){
 void Controller::parse(char * message){
 	//tudududuuddu
 }
+
 
 const char * Controller::state_to_str(){
     switch(state){

@@ -27,6 +27,7 @@ class Controller{
     HAL * hal;
     private:
         void timer_expired();
+
     public:
 
         Controller(HAL * usehal);
