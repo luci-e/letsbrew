@@ -201,6 +201,10 @@ using namespace std;
 					return PARSE_BAD_BODY;
 				} else {
 					amount = stoi( it->second );
+
+					if( amount < 0 ){
+						return PARSE_BAD_BODY;
+					}
 				}
 
 				break;
