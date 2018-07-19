@@ -192,19 +192,11 @@ using namespace std;
 				it = request.request_params.find( "H2O_TEMP" );
 				if ( it == mapref.end() ) {
 					return PARSE_BAD_BODY;
-				} else {
-					temp = stoi( it->second );
 				}
 
 				it = request.request_params.find( "H2O_AMOUNT" );
 				if ( it == mapref.end() ) {
 					return PARSE_BAD_BODY;
-				} else {
-					amount = stoi( it->second );
-
-					if( amount < 0 ){
-						return PARSE_BAD_BODY;
-					}
 				}
 
 				break;
@@ -229,12 +221,6 @@ using namespace std;
 				it = request.request_params.find( "DURATION" );
 				if ( it == mapref.end() ) {
 					return PARSE_BAD_BODY;
-				} else {
-					duration = stoi( it->second );
-
-					if ( 0 < duration ) {
-						return PARSE_BAD_BODY;
-					}
 				}
 
 				break;
@@ -280,10 +266,6 @@ using namespace std;
 		}
 
 		return PARSE_OK;
-	};
-
-	int lb_queue_request( const lb_request_header &request_header, const string &request_params ) {
-		return 0;
 	};
 
 }
