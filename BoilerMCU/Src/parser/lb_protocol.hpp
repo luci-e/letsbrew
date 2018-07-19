@@ -52,34 +52,6 @@ using namespace std;
 		map<string, string> response_params;
 	};
 
-	struct lb_handler{
-		queue<lb_request> request_queue;
-
-		uint32_t max_water_temp_C;
-		uint32_t max_water_amount_mL;
-
-		uint32_t current_water_amount_mL;
-		uint32_t current_temp_C;
-
-		lb_handler( uint32_t max_temp_C, uint32_t max_amount_mL ) : max_water_temp_C( max_temp_C ), max_water_amount_mL( max_amount_mL ) {};
-	};
-
-	inline void lb_set_temp( lb_handler &handler, uint32_t temp ) {
-		if ( temp < handler.max_water_temp_C ) {
-			handler.current_temp_C = temp;
-		}
-	}
-
-	inline void lb_set_water_amount( lb_handler &handler, uint32_t amount ) {
-		if ( amount < handler.max_water_amount_mL ) {
-			handler.current_water_amount_mL = amount;
-		}
-	}
-
-	int lb_init_handler( lb_handler &hlb ) {
-		return 0;
-	};
-
 	std::string& ltrim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
 		str.erase( 0, str.find_first_not_of( chars ) );
 		return str;
@@ -199,7 +171,7 @@ using namespace std;
 		return PARSE_OK;
 	};
 
-	int lb_check_request( const lb_handler &handler, const lb_request &request ) {
+	int lb_check_request( const lb_request &request ) {
 
 		map<string, string>::const_iterator it;
 		const map<string, string> &mapref = request.request_params;
@@ -222,10 +194,6 @@ using namespace std;
 					return PARSE_BAD_BODY;
 				} else {
 					temp = stoi( it->second );
-
-					if ( 0 < temp || temp > handler.max_water_temp_C ) {
-						return PARSE_BAD_BODY;
-					}
 				}
 
 				it = request.request_params.find( "H2O_AMOUNT" );
@@ -233,10 +201,6 @@ using namespace std;
 					return PARSE_BAD_BODY;
 				} else {
 					amount = stoi( it->second );
-
-					if ( 0 < amount || amount > handler.current_water_amount_mL ) {
-						return PARSE_BAD_BODY;
-					}
 				}
 
 				break;
@@ -285,7 +249,7 @@ using namespace std;
 	 * @param result
 	 * @return
 	 */
-	int lb_parse_request( const lb_handler &handler, const string &lb_request_string, lb_request &result ){
+	int lb_parse_request( const string &lb_request_string, lb_request &result ){
 		string header_string;
 		string body_string;
 
@@ -307,14 +271,14 @@ using namespace std;
 			return PARSE_BAD_BODY;
 		}
 
-		if ( lb_check_request( handler, result ) != PARSE_OK ) {
+		if ( lb_check_request( result ) != PARSE_OK ) {
 			return PARSE_BAD_BODY;
 		}
 
 		return PARSE_OK;
 	};
 
-	int lb_queue_request( lb_handler &hlb, const lb_request_header &request_header, const string &request_params ) {
+	int lb_queue_request( const lb_request_header &request_header, const string &request_params ) {
 		return 0;
 	};
 

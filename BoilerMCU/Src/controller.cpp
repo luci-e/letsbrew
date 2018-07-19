@@ -13,10 +13,6 @@
 
 using namespace std;
 
-
-
-
-
 Controller::Controller(HAL * usehal){
 	hal = usehal;
     state = IDLE;
@@ -80,6 +76,7 @@ void Controller::abort(){
     last_error = NOERROR;
     ticks_to_go = 0;
 }
+
 void Controller::keep_warm(unsigned int seconds){
     switch(state){
         case IDLE:
