@@ -31,7 +31,7 @@ function send_data( form_id ) {
 // Show the divs in the given form with the given id, hide the others
 function show_cmd_params( form_id, param_id ){
 	var params = $(form_id).find( '[name="cmd_param"]:not(:disabled)');
-	$.each( params, function( i, cmd_param ){
+	$.each( params, ( i, cmd_param ) => {
 		$(cmd_param).hide();
 		$(cmd_param).find(':input').prop('disabled', true);
 	} );
@@ -43,7 +43,7 @@ function show_cmd_params( form_id, param_id ){
 function init_script(){
 
 	// Setup the listener to the CMD selector select
-	$('#cmd_selector').on('change', function( event ){
+	$('#cmd_selector').on('change', ( event ) => {
 		var selected = $('#cmd_selector option:selected').text();
 		switch( selected ){
 			case 'BREW':
@@ -54,4 +54,15 @@ function init_script(){
 				break;
 		}
 	});
+
+
+	// Setup the listener for the tab selector
+	$('.tab_select_button').on('click', (event) => {
+		var show_tab_id = $(event.target).data('tab_select');
+		$('#tab_selector').find('.selected_tab_button').toggleClass('selected_tab_button');
+		
+		$(event.target).toggleClass('selected_tab_button');
+		$( '#center_column' ).find('.center_tab:visible').toggle();
+		$( '#' + show_tab_id ).toggle();
+	} );
 }
