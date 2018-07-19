@@ -32,10 +32,10 @@ class Controller{
         Controller(HAL * usehal);
 
         void tick();
-        void abort();
-        void brew();
-        void keep_warm(unsigned int seconds);
+        AUTOMERRORS abort();
+        AUTOMERRORS brew();
+        AUTOMERRORS keep_warm(unsigned int seconds);
         const char * state_to_str();
         const char * last_err_to_str();
-
+        void parse(char * message);
 };

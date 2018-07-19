@@ -20,7 +20,9 @@ void callback (TimerHandle_t xTimer){
 	c->tick();
 }
 
-
+void parsingCallback(char * msg){
+	c->parse(msg);
+}
 
 int main(){
 

@@ -32,14 +32,17 @@ void USARTConfig(void);
 static void prvAutoReloadTimerCallback( TimerHandle_t);
 
 void LedBlinkTask(void const * argument);
-
+void UART_read_task(void const * argument);
 
 /* The periods assigned to the one-shot and auto-reload timers are 3.300 second and half a second, respectively. */
 
 #define mainAUTO_RELOAD_TIMER_PERIOD pdMS_TO_TICKS( 1000 )
 
-int init(TimerCallbackFunction_t pxCallbackFunction)
+void (*pkb)(char*);
+
+int init(TimerCallbackFunction_t pxCallbackFunction,void(*parserCallback)(char*))
 {
+	pkb = parserCallback;
 	HAL_Init();
 	SystemClock_Config();
 	BSP_LED_Init(LED2);
@@ -51,6 +54,7 @@ int init(TimerCallbackFunction_t pxCallbackFunction)
     /* Create the auto-reload timer, storing the handle to the created timer in xAutoReloadTimer. */
     //xAutoReloadTimer = xTimerCreate( "AutoReload", mainAUTO_RELOAD_TIMER_PERIOD, pdTRUE, 0, prvAutoReloadTimerCallback );
     xTaskCreate((void *)LedBlinkTask, "BLINK", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
+    xTaskCreate((void *)UART_read_task, "UART", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     xAutoReloadTimer = xTimerCreate( "AutoReload", mainAUTO_RELOAD_TIMER_PERIOD, pdTRUE, 0, pxCallbackFunction );
     /* Check the software timers were created. */
     if( xAutoReloadTimer != NULL ) {
@@ -80,7 +84,15 @@ void LedBlinkTask(void const * argument)
 	  vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
   }
 }
-
+void UART_read_task(void const * argument)
+{
+  while(1)
+  {
+	  char * msg = "read from uart\n";
+	  vTaskDelay(pdMS_TO_TICKS( 1000 ));
+	  pkb(msg);
+  }
+}
 
 static void prvAutoReloadTimerCallbackOld( TimerHandle_t xTimer )
 {

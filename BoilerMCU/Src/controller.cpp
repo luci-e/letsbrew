@@ -45,7 +45,9 @@ const char * Controller::last_err_to_str(){
     }
 }
 
-
+void Controller::parse(char * message){
+	//tudududuuddu
+}
 
 const char * Controller::state_to_str(){
     switch(state){
@@ -74,13 +76,14 @@ const char * Controller::state_to_str(){
 
 
 
-void Controller::abort(){
+AUTOMERRORS Controller::abort(){
     hal->stop_heater();
     state = IDLE;
     last_error = NOERROR;
     ticks_to_go = 0;
+    return last_error;
 }
-void Controller::keep_warm(unsigned int seconds){
+AUTOMERRORS Controller::keep_warm(unsigned int seconds){
     switch(state){
         case IDLE:
             if(hal->get_temperature() < KWMINTOSTART){
@@ -111,8 +114,9 @@ void Controller::keep_warm(unsigned int seconds){
         	break ;
 
     }
+    return last_error;
 }
-void Controller::brew(){
+AUTOMERRORS Controller::brew(){
     switch(state){
         case IDLE:
             if(hal->get_temperature() > BREWMAXTOSTART){
@@ -140,6 +144,7 @@ void Controller::brew(){
         default: break;
 
     }
+    return last_error;
 }
 
 void Controller::tick(){
