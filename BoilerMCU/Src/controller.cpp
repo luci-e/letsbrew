@@ -9,7 +9,7 @@
 #define KWKEEPBELOW 65
 #define KWMINTOSTART 50
 
-#define seconds_to_ticks(x) x * 1000
+#define seconds_to_ticks(x) x * 1
 
 using namespace std;
 
@@ -21,6 +21,7 @@ Controller::Controller(HAL * usehal){
 	hal = usehal;
     state = IDLE;
     last_error = NOERROR;
+    ticks_to_go = 0;
 }
 
 const char * Controller::last_err_to_str(){
@@ -37,7 +38,9 @@ const char * Controller::last_err_to_str(){
             return "Unable to keep-warm, too cold";
         case KEEPWARMINPROGRESS:
             return "Keep-warm already in progress";
-        default: break;
+        default:
+        	return "";
+        	break;
 
     }
 }
@@ -64,7 +67,7 @@ const char * Controller::state_to_str(){
         case ERR:
             return "Error state";
             break;
-        default: break;
+        default:return ""; break;
 
     }
 }
@@ -103,7 +106,9 @@ void Controller::keep_warm(unsigned int seconds){
             break;
         case ERR:
             break;
-        default:break ;
+        default:
+
+        	break ;
 
     }
 }
