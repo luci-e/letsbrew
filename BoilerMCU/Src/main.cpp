@@ -28,7 +28,7 @@ int main(){
 
 	HAL hal;
 	c = new Controller(&hal);
-	init(callback);
+	init(callback,parsingCallback);
 	//HAL_Init();
 
 }

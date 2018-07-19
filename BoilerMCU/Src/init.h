@@ -8,7 +8,7 @@
 
 
 
-int init(TimerCallbackFunction_t pxCallbackFunction);
+int init(TimerCallbackFunction_t pxCallbackFunction,void(*parserCallback)(char*));
 
 #ifdef __cplusplus
 }
