@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int main( char ** argv, int argc ) {
+int test_protocol( char ** argv, int argc ) {
 
 	string good_request = "ID:42\nCMD:BREW\nUSR:21321\nTIME:12322\r\nTEST:BODY\nciccio:buccio";
 	stream_reader sr( 512 );
