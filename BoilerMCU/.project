@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>test_bt</name>
-<<<<<<< HEAD
+	<name>BoilerMCU</name>
 	<comment></comment>
-=======
-	<comment />
->>>>>>> master
 	<projects>
 	</projects>
 	<buildSpec>
@@ -27,11 +23,6 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
-<<<<<<< HEAD
-=======
-	<linkedResources>
-		
-	</linkedResources>
->>>>>>> master
 </projectDescription>

@@ -4,12 +4,12 @@
 #include "lb_protocol.hpp"
 
 using namespace std;
+using namespace letsbrew;
 
-int main( char ** argv, int argc ) {
+int test_protocol( char ** argv, int argc ) {
 
 	string good_request = "ID:42\nCMD:BREW\nUSR:21321\nTIME:12322\r\nTEST:BODY\nciccio:buccio";
 	stream_reader sr( 512 );
-
 
 	for ( auto c : good_request ) {
 		auto ret = sr.push_char( c );
@@ -31,7 +31,7 @@ int main( char ** argv, int argc ) {
 	}out:
 
 	letsbrew::lb_request lbr;
-	letsbrew::lb_parse_request( sr.message_buffer, lbr );
+	letsbrew::lb_parse_request( good_request, lbr );
 
 	return 0;
 }
