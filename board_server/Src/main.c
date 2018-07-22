@@ -112,7 +112,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
+  MX_USART2_UART_Init();
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -293,12 +293,14 @@ void StartDefaultTask(void const * argument)
 {
 
   /* init code for STMicroelectronics_BlueNRG-MS_1_0_0 */
-  TP_STMicroelectronics_BlueNRG-MS_1_0_0_Init();
 
   /* USER CODE BEGIN 5 */
+
+  MX_BlueNRG_MS_Init();
   /* Infinite loop */
   for(;;)
   {
+	MX_BlueNRG_MS_Process();
     osDelay(1);
   }
   /* USER CODE END 5 */ 
@@ -337,6 +339,8 @@ void _Error_Handler(char *file, int line)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
+	  HAL_Delay(500);
+	  HAL_GPIO_TogglePin( GPIOA, GPIO_PIN_5 );
   }
   /* USER CODE END Error_Handler_Debug */
 }

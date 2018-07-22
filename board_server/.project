@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>test_bt</name>
-<<<<<<< HEAD
-	<comment></comment>
-=======
+	<name>board_server</name>
 	<comment />
->>>>>>> master
 	<projects>
 	</projects>
 	<buildSpec>
@@ -28,10 +24,7 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-<<<<<<< HEAD
-=======
 	<linkedResources>
 		
 	</linkedResources>
->>>>>>> master
 </projectDescription>

@@ -1,12 +1,14 @@
 /**
   ******************************************************************************
-  * @file    
+  * @file    UART/UART_Hyperterminal_IT/Inc/main.h 
   * @author  MCD Application Team
-  * @version V2.0.0
+  * @version V1.1.0
+  * @date    26-June-2014
+  * @brief   Header for main.c module
   ******************************************************************************
   * @attention
   *
-  * COPYRIGHT(c) 2018 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -30,13 +32,42 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
+  ******************************************************************************
   */
-  /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef  __RTE_COMPONENTS_H__
-#define  __RTE_COMPONENTS_H__ 
+  
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __UART_SUPPORT_H
+#define __UART_SUPPORT_H
 
-/* Defines ------------------------------------------------------------------*/
-#define HCI_TL
-#define SAMPLE_APP 
- 
-#endif /* __RTE_COMPONENTS_H__ */
+/* Includes ------------------------------------------------------------------*/
+
+/* Exported types ------------------------------------------------------------*/
+
+#ifdef PRINTF
+#undef PRINTF
+#endif
+
+inline void PRINT_MESG_UART(const char * format, ... );
+
+#define PRINTF
+//#define PRINTF PRINT_MESG_UART
+
+/* Exported constants --------------------------------------------------------*/
+
+/* Size of Transmission buffer */
+#define TXSTARTMESSAGESIZE                 (COUNTOF(aTxStartMessage) - 1)
+#define TXENDMESSAGESIZE                   (COUNTOF(aTxEndMessage) - 1)
+
+/* Size of Reception buffer */
+#define UARTHEADERSIZE 4
+#define RXBUFFERSIZE 255
+
+/* Exported macro ------------------------------------------------------------*/
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
+
+
+extern uint8_t uart_header[UARTHEADERSIZE];
+
+#endif /* __UART_SUPPORT_H */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

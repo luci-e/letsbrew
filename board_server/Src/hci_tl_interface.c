@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hci_tl_interface.h"
 #include "stm32f4xx_hal_exti.h"
+#include "hci_tl.h"
 
 #define HEADER_SIZE       5U
 #define MAX_BUFFER_SIZE   255U
@@ -214,6 +215,18 @@ int32_t HCI_TL_SPI_Send(uint8_t* buffer, uint16_t size)
   return result;
 }
 
+/**
+ * @brief  Reports if the BlueNRG has data for the host micro.
+ *
+ * @param  None
+ * @retval int32_t: 1 if data are present, 0 otherwise
+ */
+static int32_t SPI_data_available(void)
+{
+  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
+}
+
+
 /***************************** hci_tl_interface main functions *****************************/
 /**
  * @brief  Register hci_tl_interface IO bus services
@@ -224,10 +237,43 @@ int32_t HCI_TL_SPI_Send(uint8_t* buffer, uint16_t size)
 void hci_tl_lowlevel_init(void)
 {
   /* USER CODE BEGIN hci_tl_lowlevel_init 1 */
-  
+
+//	/**
+//	 * @brief  Reports if the BlueNRG has data for the host micro.
+//	 *
+//	 * @param  None
+//	 * @retval int32_t: 1 if data are present, 0 otherwise
+//	 */
+//	static int32_t SPI_data_available(void)
+//	{
+//	  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
+//	}
+//
+
+	 tHciIO fops;
+
+	  /* Register IO bus services */
+	  fops.Init    = HCI_TL_SPI_Init;
+	  fops.DeInit  = HCI_TL_SPI_DeInit;
+	  fops.Send    = HCI_TL_SPI_Send;
+	  fops.Receive = HCI_TL_SPI_Receive;
+	  fops.Reset   = HCI_TL_SPI_Reset;
+	  fops.GetTick = BSP_GetTick;
+
+	  hci_register_io_bus (&fops);
+
+	  if( HAL_EXTI_GetHandle(&hexti0, EXTI_LINE_0) != HAL_OK ){
+		  PRINTF("Error getting EXTI0 handle\n");
+	  }
+	  if( HAL_EXTI_RegisterCallback(&hexti0, HAL_EXTI_COMMON_CB_ID, hci_tl_lowlevel_isr) != HAL_OK ){
+		  PRINTF("Error registering cb for EXTI0\n");
+	  }
+	  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+
   /* USER CODE END hci_tl_lowlevel_init 1 */
   /* USER CODE BEGIN hci_tl_lowlevel_init 3 */
-  
   /* USER CODE END hci_tl_lowlevel_init 3 */
 }
 
@@ -242,6 +288,10 @@ void hci_tl_lowlevel_isr(void)
   /* Call hci_notify_asynch_evt() */
   
   /* USER CODE BEGIN hci_tl_lowlevel_isr */
+
+	while(SPI_data_available()){
+		hci_notify_asynch_evt(NULL);
+	}
 
   /* USER CODE END hci_tl_lowlevel_isr */ 
 }
