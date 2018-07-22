@@ -24,6 +24,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __APP_BLUENRGMS_H
 #define __APP_BLUENRGMS_H
+
 #ifdef __cplusplus
  extern "C" {
 #endif
