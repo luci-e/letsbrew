@@ -1,6 +1,3 @@
-#pragma once
-
-
 //#ifndef LB_PROTOCOL_INCLUDE
 //#define LB_PROTOCOL_INCLUDE
 

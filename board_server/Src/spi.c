@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * File Name          : SPI.c
+  * Description        : This file provides code for the configuration
+  *                      of the SPI instances.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -47,44 +47,23 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#pragma once
-
 /* Includes ------------------------------------------------------------------*/
+#include "spi.h"
 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN 0 */
 
-/* USER CODE END Includes */
+/* USER CODE END 0 */
 
-/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN 1 */
 
-#define USART_TX_Pin GPIO_PIN_2
-#define USART_TX_GPIO_Port GPIOA
-#define USART_RX_Pin GPIO_PIN_3
-#define USART_RX_GPIO_Port GPIOA
-#include <stdint.h>
-/* ########################## Assert Selection ############################## */
+/* USER CODE END 1 */
+
 /**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
+  * @}
   */
-/* #define USE_FULL_ASSERT    1U */
 
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-void _Error_Handler(char *, int);
-void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t));
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-
-#ifdef __cplusplus
-}
-#endif
-
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
