@@ -40,10 +40,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+
+
 #include "stm32f4xx_hal.h"
 #include <stdarg.h>
 #include <string.h>
 #include <hci.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void *profiledbgfile;
 
@@ -66,5 +72,9 @@ extern UART_HandleTypeDef huart2;
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
 void PRINT_MESG_UART(const char * format, ... );
+
+#ifdef __cplusplus
+}
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

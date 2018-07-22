@@ -41,11 +41,16 @@
   *
   ******************************************************************************
   */
+
 #include "lb_service.h"
 #include "bluenrg_gap_aci.h"
 #include "bluenrg_gatt_aci.h"
 #include "connection_config.h"
 #include "uart_support.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /* Private variables ---------------------------------------------------------*/
 __IO uint32_t connected = FALSE;
@@ -183,7 +188,7 @@ void Read_Request_CB(uint16_t handle){
 /**
  * Add the brewing services to the controller
  */
-void lb_add_brewing_service(){
+int lb_add_brewing_service(){
 	tBleStatus ret;
 
 	/*
@@ -272,5 +277,9 @@ void lb_user_notify(void * pData)
     break;
   }
 }
+
+#ifdef __cplusplus
+ }
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

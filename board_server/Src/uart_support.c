@@ -5,7 +5,12 @@
  *      Author: lucie
  */
 
+
 #include "uart_support.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 void PRINT_MESG_UART(const char * format, ... ){
 	va_list ap;
@@ -21,3 +26,8 @@ void PRINT_MESG_UART(const char * format, ... ){
 
 	va_end(ap);
 }
+
+#ifdef __cplusplus
+ }
+#endif
+

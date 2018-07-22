@@ -24,9 +24,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __APP_BLUENRGMS_C
 #define __APP_BLUENRGMS_C
-#ifdef __cplusplus
- extern "C" {
-#endif
+
 
 /* Includes ------------------------------------------------------------------*/
 
@@ -36,6 +34,10 @@
 #include "bluenrg_gap_aci.h"
 #include "bluenrg_gatt_aci.h"
 #include "uart_support.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 extern volatile uint8_t set_connectable;
 

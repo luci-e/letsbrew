@@ -7,9 +7,7 @@
 
 #pragma once
 
-#ifdef __cplusplus
- extern "C" {
-#endif
+
 
 #include "bluenrg_gap.h"
 #include "string.h"
@@ -21,6 +19,9 @@
 #include "sm.h"
 #include <stdlib.h>
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /**
  * Make a new connection
@@ -52,7 +53,7 @@ void       lb_GAP_disconnection_complete_cb(void);
 /**
  * Add the brewing services to the controller
  */
-void lb_add_brewing_service();
+int lb_add_brewing_service();
 
 /**
  * @brief  Callback processing the ACI events.
