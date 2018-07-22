@@ -49,36 +49,13 @@
 #include "connection_config.h"
 #include "uart_support.h"
 
-/** @addtogroup X-CUBE-BLE1_Applications
- *  @{
- */
-
-/** @addtogroup SensorDemo
- *  @{
- */
-
-/** @defgroup SENSOR_SERVICE
- * @{
- */
-
-/** @defgroup SENSOR_SERVICE_Private_Variables
- * @{
- */
 /* Private variables ---------------------------------------------------------*/
 __IO uint32_t connected = FALSE;
 __IO uint8_t set_connectable = 1;
 __IO uint16_t connection_handle = 0;
 __IO uint8_t notification_enabled = FALSE;
-uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
-uint16_t accServHandle, freeFallCharHandle, accCharHandle;
-uint16_t envSensServHandle, tempCharHandle, pressCharHandle, humidityCharHandle;
-/**
- * @}
- */
 
-/** @defgroup SENSOR_SERVICE_Private_Macros
- * @{
- */
+
 /* Private macros ------------------------------------------------------------*/
 #define COPY_UUID_128(uuid_struct, uuid_15, uuid_14, uuid_13, uuid_12, uuid_11, uuid_10, uuid_9, uuid_8, uuid_7, uuid_6, uuid_5, uuid_4, uuid_3, uuid_2, uuid_1, uuid_0) \
 do {\
@@ -91,9 +68,6 @@ do {\
 /* Store Value into a buffer in Little Endian Format */
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
                                    ((buf)[1] =  (uint8_t) (val>>8) ) )
-/**
- * @}
- */
 
 /**
  * @brief  Make the device connectable
@@ -260,21 +234,5 @@ void user_notify(void * pData)
     break;
   }
 }
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
- /**
- * @}
- */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

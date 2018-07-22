@@ -36,10 +36,16 @@
   */
   
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __UART_SUPPORT_H
-#define __UART_SUPPORT_H
+#pragma once
 
 /* Includes ------------------------------------------------------------------*/
+
+#include "stm32f4xx_hal.h"
+#include <stdarg.h>
+#include <string.h>
+#include <hci.h>
+
+void *profiledbgfile;
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -47,27 +53,18 @@
 #undef PRINTF
 #endif
 
-inline void PRINT_MESG_UART(const char * format, ... );
-
-#define PRINTF
-//#define PRINTF PRINT_MESG_UART
+//#define PRINTF
+#define PRINTF PRINT_MESG_UART
 
 /* Exported constants --------------------------------------------------------*/
 
-/* Size of Transmission buffer */
-#define TXSTARTMESSAGESIZE                 (COUNTOF(aTxStartMessage) - 1)
-#define TXENDMESSAGESIZE                   (COUNTOF(aTxEndMessage) - 1)
+extern UART_HandleTypeDef huart2;
 
-/* Size of Reception buffer */
-#define UARTHEADERSIZE 4
-#define RXBUFFERSIZE 255
+#define TX_BUFFER_SIZE 128
 
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
-
-extern uint8_t uart_header[UARTHEADERSIZE];
-
-#endif /* __UART_SUPPORT_H */
+void PRINT_MESG_UART(const char * format, ... );
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

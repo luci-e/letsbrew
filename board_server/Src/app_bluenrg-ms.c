@@ -29,15 +29,16 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
- #include "hci_tl.h"
- #include "lb_service.h"
- #include "bluenrg_utils.h"
- #include "bluenrg_gap_aci.h"
- #include "bluenrg_gatt_aci.h"
- #include "uart_support.h"
+
+#include "hci_tl.h"
+#include "lb_service.h"
+#include "bluenrg_utils.h"
+#include "bluenrg_gap_aci.h"
+#include "bluenrg_gatt_aci.h"
+#include "uart_support.h"
 
 
-  extern volatile uint8_t set_connectable;
+extern volatile uint8_t set_connectable;
 
 #if PRINT_CSV_FORMAT
 extern volatile uint32_t ms_counter;
@@ -83,10 +84,16 @@ void MX_BlueNRG_MS_Init(void)
 	  uint16_t fwVersion;
 	  int ret = 0;
 
+
+	  PRINTF("HWver %d\nFWver %d\n", hwVersion, fwVersion);
+
+	  HAL_UART_Transmit(&huart2, "Hello there\n", 12, 5000);
+
 	  hci_init( user_notify, NULL );
 
 	  /* get the BlueNRG HW and FW versions */
 	  getBlueNRGVersion(&hwVersion, &fwVersion);
+
 
 	  /*
 	   * Reset BlueNRG again otherwise we won't
@@ -95,8 +102,6 @@ void MX_BlueNRG_MS_Init(void)
 	   * command after reset otherwise it will fail.
 	   */
 	  HCI_TL_SPI_Reset();
-
-	  PRINTF("HWver %d\nFWver %d\n", hwVersion, fwVersion);
 
 	  /* The Nucleo board must be configured as SERVER */
 	  BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
@@ -108,6 +113,7 @@ void MX_BlueNRG_MS_Init(void)
 	    PRINTF("Setting BD_ADDR failed.\n");
 	    _Error_Handler(__FILE__, __LINE__);
 	  }
+
 
 	  ret = aci_gatt_init();
 	  if(ret){
