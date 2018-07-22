@@ -134,12 +134,7 @@ KEEPWARM_RESPONSE: {
 	
 Board spec
 
-USART1 (PA9 TX, PA10 RX) -> Serial BT 
-USART2 -> Serial dbg
-
-Pad3 is used by USART rn
-
-
-
 When trying to configure the application for bluetooth, the documentation for cubemx is in packs/docs
-Cubemx doesn't copy ble_list.h must copy manually
+
+PB0 - opto
+PA4 - ADC
