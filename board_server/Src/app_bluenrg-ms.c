@@ -37,8 +37,8 @@
 #include "bluenrg_gatt_aci.h"
 #include "uart_support.h"
 
-
 extern volatile uint8_t set_connectable;
+
 
 #if PRINT_CSV_FORMAT
 extern volatile uint32_t ms_counter;
