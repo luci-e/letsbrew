@@ -89,7 +89,7 @@ void MX_BlueNRG_MS_Init(void)
 
 	  HAL_UART_Transmit(&huart2, "Hello there\n", 12, 5000);
 
-	  hci_init( user_notify, NULL );
+	  hci_init( lb_user_notify, NULL );
 
 	  /* get the BlueNRG HW and FW versions */
 	  getBlueNRGVersion(&hwVersion, &fwVersion);
@@ -111,21 +111,21 @@ void MX_BlueNRG_MS_Init(void)
 	                                  bdaddr);
 	  if (ret) {
 	    PRINTF("Setting BD_ADDR failed.\n");
-	    _Error_Handler(__FILE__, __LINE__);
+	    Error_Handler();
 	  }
 
 
 	  ret = aci_gatt_init();
 	  if(ret){
 	    PRINTF("GATT_Init failed.\n");
-	    _Error_Handler(__FILE__, __LINE__);
+	    Error_Handler();
 	  }
 
 	  ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, 0x07, &service_handle, &dev_name_char_handle, &appearance_char_handle);
 
 	  if (ret != BLE_STATUS_SUCCESS) {
 	    PRINTF("GAP_Init failed.\n");
-	    _Error_Handler(__FILE__, __LINE__);
+	    Error_Handler();
 	  }
 
 	  ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0,
@@ -133,7 +133,7 @@ void MX_BlueNRG_MS_Init(void)
 
 	  if (ret) {
 	    PRINTF("aci_gatt_update_char_value failed.\n");
-	    _Error_Handler(__FILE__, __LINE__);
+	    Error_Handler();
 	  }
 
 	  ret = aci_gap_set_auth_requirement(MITM_PROTECTION_REQUIRED,
@@ -144,11 +144,14 @@ void MX_BlueNRG_MS_Init(void)
 	                                     USE_FIXED_PIN_FOR_PAIRING,
 	                                     123456,
 	                                     BONDING);
-	  if (ret == BLE_STATUS_SUCCESS) {
-	    PRINTF("BLE Stack Initialized.\n");
+	  if (ret) {
+	    PRINTF("Failed to set auth requirements.\n");
+	    Error_Handler();
 	  }
 
 	  PRINTF("SERVER: BLE Stack Initialized\n");
+
+	  lb_add_brewing_service();
 
 	  /* Set output power level */
 	  ret = aci_hal_set_tx_power_level(1,4);
@@ -170,7 +173,7 @@ void MX_BlueNRG_MS_Process(void)
 	  if (set_connectable)
 	  {
 	    /* Establish connection with remote device */
-	    Make_Connection();
+	    lb_make_connection();
 	    set_connectable = FALSE;
 	  }
 

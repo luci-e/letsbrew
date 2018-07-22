@@ -53,6 +53,7 @@ __IO uint8_t set_connectable = 1;
 __IO uint16_t connection_handle = 0;
 __IO uint8_t notification_enabled = FALSE;
 
+uint16_t lb_service_handle, lb_tx_char_handle, lb_rx_char_handle;
 
 /* Private macros ------------------------------------------------------------*/
 #define COPY_UUID_128(uuid_struct, uuid_15, uuid_14, uuid_13, uuid_12, uuid_11, uuid_10, uuid_9, uuid_8, uuid_7, uuid_6, uuid_5, uuid_4, uuid_3, uuid_2, uuid_1, uuid_0) \
@@ -67,12 +68,8 @@ do {\
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
                                    ((buf)[1] =  (uint8_t) (val>>8) ) )
 
-/**
- * @brief  Make the device connectable
- * @param  None
- * @retval None
- */
-void Make_Connection(void)
+
+void lb_make_connection(void)
 {
   tBleStatus ret;
     const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B', 'r', 'e', 'w', 'y', 'M', 'c', 'B', 'r', 'e', 'w', 'f', 'a', 'c', 'e'};
@@ -91,7 +88,7 @@ void Make_Connection(void)
 
     if (ret) {
 		PRINTF("Discoverable mode failed.\n");
-		_Error_Handler(__FILE__, __LINE__);
+		Error_Handler();
 	}
 
 }
@@ -118,7 +115,13 @@ void Make_Connection(void)
  *  ret = aci_gap_update_adv_data(5, manuf_data);
  *
  */
-void setConnectable(void)
+
+/**
+ * @brief  Make the device connectable advertise its services
+ * @param  None
+ * @retval None
+ */
+void lb_set_connectable(void)
 {
   tBleStatus ret;
 
@@ -141,7 +144,7 @@ void setConnectable(void)
  * @param  uint16_t Connection handle
  * @retval None
  */
-void GAP_ConnectionComplete_CB(uint8_t addr[6], uint16_t handle)
+void lb_GAP_connection_complete_cb(uint8_t addr[6], uint16_t handle)
 {
   connected = TRUE;
   connection_handle = handle;
@@ -158,7 +161,7 @@ void GAP_ConnectionComplete_CB(uint8_t addr[6], uint16_t handle)
  * @param  None
  * @retval None
  */
-void GAP_DisconnectionComplete_CB(void)
+void lb_GAP_disconnection_complete_cb(void)
 {
   connected = FALSE;
   PRINTF("Disconnected\n");
@@ -178,13 +181,50 @@ void Read_Request_CB(uint16_t handle){
 }
 
 /**
+ * Add the brewing services to the controller
+ */
+void lb_add_brewing_service(){
+	tBleStatus ret;
+
+	/*
+	UUIDs:
+	D973F2E0-B19E-11E2-9E96-0800200C9A66
+	D973F2E1-B19E-11E2-9E96-0800200C9A66
+	D973F2E2-B19E-11E2-9E96-0800200C9A66
+	*/
+
+	const uint8_t service_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe0,0xf2,0x73,0xd9};
+	const uint8_t charUuidTX[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
+	const uint8_t charUuidRX[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe2,0xf2,0x73,0xd9};
+
+	ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &lb_service_handle); /* original is 9?? */
+	if (ret != BLE_STATUS_SUCCESS) goto fail;
+
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, charUuidTX, 20, CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
+						   16, 1, &lb_tx_char_handle);
+	if (ret != BLE_STATUS_SUCCESS) goto fail;
+
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, charUuidRX, 20, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
+						   16, 1, &lb_rx_char_handle);
+	if (ret != BLE_STATUS_SUCCESS) goto fail;
+
+	PRINTF("Sample Service added.\nTX Char Handle %04X, RX Char Handle %04X\n", lb_tx_char_handle, lb_rx_char_handle);
+	return BLE_STATUS_SUCCESS;
+
+	fail:
+	PRINTF("Error while adding Sample Service.\n");
+	return BLE_STATUS_ERROR ;
+}
+
+
+/**
  * @brief  Callback processing the ACI events.
  * @note   Inside this function each event must be identified and correctly
  *         parsed.
  * @param  void* Pointer to the ACI packet
  * @retval None
  */
-void user_notify(void * pData)
+void lb_user_notify(void * pData)
 {
   hci_uart_pckt *hci_pckt = pData;
   /* obtain event packet */
@@ -197,7 +237,7 @@ void user_notify(void * pData)
 
   case EVT_DISCONN_COMPLETE:
     {
-      GAP_DisconnectionComplete_CB();
+      lb_GAP_disconnection_complete_cb();
     }
     break;
 
@@ -209,7 +249,7 @@ void user_notify(void * pData)
       case EVT_LE_CONN_COMPLETE:
         {
           evt_le_connection_complete *cc = (void *)evt->data;
-          GAP_ConnectionComplete_CB(cc->peer_bdaddr, cc->handle);
+          lb_GAP_connection_complete_cb(cc->peer_bdaddr, cc->handle);
         }
         break;
       }
