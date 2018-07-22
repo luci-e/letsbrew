@@ -47,12 +47,13 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include <init.h>
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "app_bluenrg-ms.h"
 
 /* USER CODE BEGIN Includes */
+#include "stm32f4xx_nucleo.h"
 
 /* USER CODE END Includes */
 
@@ -78,6 +79,14 @@ void StartDefaultTask(void const * argument);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
+void LedBlinkTask(void const * argument);
+void UART_read_task(void const * argument);
+//#define mainAUTO_RELOAD_TIMER_PERIOD pdMS_TO_TICKS( 1000 )
+#define TIMER_MS 1000
+void (*pkb)(char*);
+const unsigned int delay_ms[3] = { 1000,500,100};
+unsigned volatile int blink_mode = 0;
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -89,7 +98,7 @@ void StartDefaultTask(void const * argument);
   *
   * @retval None
   */
-int main(void)
+void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(char*))
 {
   /* USER CODE BEGIN 1 */
 
@@ -133,8 +142,14 @@ int main(void)
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 2048);
+  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 2048);
+  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
+  osTimerDef(Controller_Timer,pxCallbackFunction);
+  osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
+  osTimerStart(osTimer(Controller_Timer),TIMER_MS);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
+  osThreadCreate(osThread(LedBlinkTask__), NULL);
+  osThreadCreate(osThread(UART_read_task__), NULL);
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -335,6 +350,24 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void LedBlinkTask(void const * argument)
+{
+  while(1)
+  {
+	  BSP_LED_Toggle(LED2);
+	  vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
+  }
+}
+void UART_read_task(void const * argument)
+{
+  while(1)
+  {
+	  char * msg = "read from uart\n";
+	  vTaskDelay(pdMS_TO_TICKS( 1000 ));
+	  pkb(msg);
+  }
+}
 
 /* USER CODE END 4 */
 
