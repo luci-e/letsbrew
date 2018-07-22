@@ -1,4 +1,9 @@
 #include "HAL.hpp"
+#define NUMCHANNELS 2
+#define BUFSIZE 512
+
+#include "stream_reader.hpp"
+
 
 enum AUTOMSTATE{
     IDLE,
@@ -19,15 +24,18 @@ enum AUTOMERRORS{
     KEEPWARMINPROGRESS
 };
 
+namespace letsbrew{
 class Controller{
 
     unsigned int ticks_to_go;
     AUTOMERRORS last_error;
     AUTOMSTATE state;
     HAL * hal;
-    private:
+    //stream_reader *channels[NUMCHANNELS];//sr( 512 );
+    stream_reader channels[2] = {stream_reader(BUFSIZE), stream_reader(BUFSIZE) };
+	private:
         void timer_expired();
-
+        void respond(unsigned int channel, char * msg);
     public:
 
         Controller(HAL * usehal);
@@ -36,7 +44,9 @@ class Controller{
         AUTOMERRORS abort();
         AUTOMERRORS brew();
         AUTOMERRORS keep_warm(unsigned int seconds);
-        const char * state_to_str();
-        const char * last_err_to_str();
-        void parse(char * message);
+        char * state_to_str();
+        char * last_err_to_str();
+        char * err_to_str(AUTOMERRORS err);
+        void parse(unsigned int channel,char new_character);
 };
+}

@@ -2,6 +2,13 @@
 
 #include <iostream>
 #include "controller.hpp"
+
+
+#include <string>
+
+#include "lb_protocol.hpp"
+
+
 #define TIMETOBREW 60
 #define BREWSTARTTEMP 80
 #define BREWMAXTOSTART 50
@@ -13,6 +20,9 @@
 
 using namespace std;
 
+using namespace letsbrew;
+
+
 Controller::Controller(HAL * usehal){
 	hal = usehal;
     state = IDLE;
@@ -20,8 +30,14 @@ Controller::Controller(HAL * usehal){
     ticks_to_go = 0;
 }
 
-const char * Controller::last_err_to_str(){
-    switch(state){
+char * Controller::last_err_to_str(){
+
+	return err_to_str(last_error);
+
+}
+
+char * Controller::err_to_str(AUTOMERRORS err){
+    switch(err){
         case NOERROR:
             return "No error";
         case BREWINPROGRESS:
@@ -41,12 +57,79 @@ const char * Controller::last_err_to_str(){
     }
 }
 
-void Controller::parse(char * message){
-	//tudududuuddu
+void Controller::parse(unsigned int channel,char new_character){
+
+//	for ( auto c : good_request ) {
+//		auto ret = sr.push_char( c );
+//
+//		switch ( ret ) {
+//			case STREAM_CODES::STREAM_OUT_OF_BOUND:
+//			{
+//				cout << "Stream out of bound " << endl;
+//				goto out;
+//			}
+//
+//			case STREAM_CODES::STREAM_DONE:
+//			{
+//				cout << "Stream done " << endl;
+//				goto out;
+//			}
+//
+//		}
+//	}out:
+
+	if(channel>=NUMCHANNELS){
+		return;
+	}
+	char * retMesg;
+
+	channels[channel].push_char(new_character);
+	if(channels[channel].message_complete){
+		letsbrew::lb_request lbr;
+		auto result =letsbrew::lb_parse_request( channels[channel].message_buffer, lbr );
+		if(result == PARSE_OK){
+			switch(lbr.request_header.CMD){
+			case BREW:
+			{
+					auto er = brew();
+					retMesg = err_to_str(er);
+					break;
+			}
+			case CANCEL:
+			{
+					abort();
+					retMesg = last_err_to_str();
+					break;
+			}
+			case(STATE):
+			{
+					retMesg = last_err_to_str();
+					break;
+			}
+			case(KEEPWARM):
+			{
+					unsigned int duration = stoi(lbr.request_params["DURAITON"]);
+					auto er=keep_warm(duration);
+					retMesg = err_to_str(er);
+					break;
+			}
+
+			}
+		}
+		respond(channel,retMesg);
+	}
+
+
+
+
 }
 
 
-const char * Controller::state_to_str(){
+void Controller::respond(unsigned int channel, char * msg){
+	;;;;//tudu tudu tudududududududu (running in the 90s)
+}
+
+char * Controller::state_to_str(){
     switch(state){
         case IDLE:
             return "IDLE";

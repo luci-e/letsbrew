@@ -81,6 +81,8 @@ static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 void StartDefaultTask(void const * argument);
 
+#define UARTRCVTIMEOUT 500
+
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -88,7 +90,8 @@ void LedBlinkTask(void const * argument);
 void UART_read_task(void const * argument);
 //#define mainAUTO_RELOAD_TIMER_PERIOD pdMS_TO_TICKS( 1000 )
 #define TIMER_MS 1000
-void (*pkb)(char*);
+
+void (*pkb)(int,uint8_t);
 const unsigned int delay_ms[3] = { 1000,500,100};
 unsigned volatile int blink_mode = 0;
 
@@ -103,7 +106,7 @@ unsigned volatile int blink_mode = 0;
   *
   * @retval None
   */
-void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(char*))
+void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t))
 {
   /* USER CODE BEGIN 1 */
 
@@ -364,13 +367,17 @@ void LedBlinkTask(void const * argument)
 	  vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
   }
 }
+
+
+
 void UART_read_task(void const * argument)
 {
   while(1)
   {
-	  char * msg = "read from uart\n";
-	  vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  pkb(msg);
+	  uint8_t c;
+	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
+	  HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT);
+	  pkb(0,c);
   }
 }
 

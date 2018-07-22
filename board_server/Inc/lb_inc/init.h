@@ -62,7 +62,7 @@
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-
+#include <stdint.h>
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
@@ -79,7 +79,7 @@
 #endif
 
 void _Error_Handler(char *, int);
-void init (void (*pxCallbackFunction)(void*),void(*parserCallback)(char*));
+void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t));
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
 #ifdef __cplusplus

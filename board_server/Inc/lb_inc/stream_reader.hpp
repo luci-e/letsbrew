@@ -20,11 +20,15 @@ enum STREAM_CODES{
 	STREAM_DONE
 };
 
-struct stream_reader{
-	string message_buffer;
+class stream_reader{
+
 	uint32_t current_length;
 	uint32_t max_length;
 
+
+public:
+	bool message_complete;
+	string message_buffer;
 	stream_reader( size_t max_message_size ){
 		message_buffer.resize( max_message_size );
 		max_length = max_message_size;
@@ -39,14 +43,18 @@ struct stream_reader{
 		message_buffer[current_length++] = c;
 
 		if( c == '\0' ){
+			message_complete = true;
 			return STREAM_DONE;
 		}
 
 		return STREAM_OK;
 	}
 
+
+
 	void clean(){
 		current_length = 0;
+		message_complete = false;
 	}
 };
 
