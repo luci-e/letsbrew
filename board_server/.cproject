@@ -45,6 +45,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/hci/hci_tl_patterns/Basic/"/>
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/utils/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.886029627" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -62,7 +63,6 @@
 								<option defaultValue="gnu.cpp.optimization.level.none" id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.285597993" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.cpp.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.303497828" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.2020191725" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
@@ -74,6 +74,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/hci/hci_tl_patterns/Basic/"/>
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/utils/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1749356370" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -111,6 +112,7 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.28272095" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.620566811" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.183831092" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1624865246" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
@@ -175,6 +177,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/hci/hci_tl_patterns/Basic/"/>
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/utils/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.886029627" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -203,6 +206,7 @@
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/hci/hci_tl_patterns/Basic/"/>
 									<listOptionValue builtIn="false" value="../Middlewares/ST/BlueNRG-MS/BlueNRG-MS/utils/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.symbols.1320567212" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false"/>
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.460673770" name="Other flags" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string"/>
@@ -241,13 +245,15 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.28272095" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.620566811" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.183831092" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1624865246" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.exe.release.1419578963" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.exe.release">
-								<option id="gnu.both.asm.option.include.paths.2023206002" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.2023206002" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc/lb_inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/board_server/Inc}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1492535178" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1625183712" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
