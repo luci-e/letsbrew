@@ -47,53 +47,60 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include <init.h>
+#include <main.hpp>
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
+#include "adc.h"
+#include "spi.h"
+#include "usart.h"
+#include "gpio.h"
 #include "app_bluenrg-ms.h"
 
 /* USER CODE BEGIN Includes */
+
 #include "stm32f4xx_nucleo.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "queue.h"
+#include "semphr.h"
+#include "event_groups.h"
+#include <string.h>
+
+#include "controller.hpp"
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-ADC_HandleTypeDef hadc1;
-
-UART_HandleTypeDef huart2;
-
-osThreadId defaultTaskHandle;
-
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
+using namespace letsbrew;
+
+Controller * c;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
-static void MX_ADC1_Init(void);
-void StartDefaultTask(void const * argument);
 
-#define UARTRCVTIMEOUT 500
+extern "C"{
+	void callback (TimerHandle_t xTimer){
+	  c->tick();
+	}
+
+	void parsingCallback(int chan,uint8_t msg){
+	  c->parse(chan,msg);
+	}
+}
+extern "C" void MX_FREERTOS_Init(void);
+
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
-void LedBlinkTask(void const * argument);
-void UART_read_task(void const * argument);
-//#define mainAUTO_RELOAD_TIMER_PERIOD pdMS_TO_TICKS( 1000 )
-#define TIMER_MS 1000
-
-void (*pkb)(int,uint8_t);
-const unsigned int delay_ms[3] = { 1000,500,100};
-unsigned volatile int blink_mode = 0;
 
 /* USER CODE END PFP */
 
@@ -106,7 +113,7 @@ unsigned volatile int blink_mode = 0;
   *
   * @retval None
   */
-void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t))
+int main(void)
 {
   /* USER CODE BEGIN 1 */
 
@@ -132,40 +139,14 @@ void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t))
   MX_GPIO_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  MX_USART2_UART_Init();
+
+	HAL hal;
+	c = new Controller(&hal);
+
   /* USER CODE END 2 */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 2048);
-  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 2048);
-  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
-  osTimerDef(Controller_Timer,pxCallbackFunction);
-  osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
-  osTimerStart(osTimer(Controller_Timer),TIMER_MS);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-  osThreadCreate(osThread(LedBlinkTask__), NULL);
-  osThreadCreate(osThread(UART_read_task__), NULL);
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
- 
+  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
   osKernelStart();
@@ -179,7 +160,6 @@ void init(void (*pxCallbackFunction)(void*),void(*parserCallback)(int,uint8_t))
 
   /* USER CODE END WHILE */
 
-  MX_BlueNRG_MS_Process();
   /* USER CODE BEGIN 3 */
 
   }
@@ -245,161 +225,9 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
-/* ADC1 init function */
-static void MX_ADC1_Init(void)
-{
-
-  ADC_ChannelConfTypeDef sConfig;
-
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
-    */
-  hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
-    */
-  sConfig.Channel = ADC_CHANNEL_11;
-  sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* USART2 init function */
-static void MX_USART2_UART_Init(void)
-{
-
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
-static void MX_GPIO_Init(void)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_8, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : PC13 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA1 PA5 PA8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_5|GPIO_PIN_8;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PB0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-
-}
-
 /* USER CODE BEGIN 4 */
 
-void LedBlinkTask(void const * argument)
-{
-  while(1)
-  {
-	  BSP_LED_Toggle(LED2);
-	  vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
-  }
-}
-
-
-
-void UART_read_task(void const * argument)
-{
-  while(1)
-  {
-	  uint8_t c;
-	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT);
-	  pkb(0,c);
-  }
-}
-
 /* USER CODE END 4 */
-
-/* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
-
-  /* init code for STMicroelectronics_BlueNRG-MS_1_0_0 */
-
-  /* USER CODE BEGIN 5 */
-
-  MX_BlueNRG_MS_Init();
-  /* Infinite loop */
-  for(;;)
-  {
-	MX_BlueNRG_MS_Process();
-    osDelay(1);
-  }
-  /* USER CODE END 5 */ 
-}
 
 /**
   * @brief  Period elapsed callback in non blocking mode
@@ -434,8 +262,6 @@ void _Error_Handler(char *file, int line)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
-	  HAL_Delay(500);
-	  HAL_GPIO_TogglePin( GPIOA, GPIO_PIN_5 );
   }
   /* USER CODE END Error_Handler_Debug */
 }
@@ -456,11 +282,6 @@ void assert_failed(uint8_t* file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-
-#ifdef __cplusplus
- }
-#endif
 
 /**
   * @}
