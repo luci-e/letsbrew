@@ -25,6 +25,7 @@ enum AUTOMERRORS{
 };
 
 namespace letsbrew{
+
 class Controller{
 
     unsigned int ticks_to_go;
