@@ -94,4 +94,5 @@ using namespace std;
 	 * @return
 	 */
 	int lb_parse_request( const string &lb_request_string, lb_request &result );
+}
 #endif // LB_PROTOCOL_INCLUDE

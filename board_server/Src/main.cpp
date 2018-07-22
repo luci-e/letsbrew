@@ -13,6 +13,9 @@
 
 #include "controller.hpp"
 
+using namespace letsbrew;
+
+
 Controller * c;
 
 
