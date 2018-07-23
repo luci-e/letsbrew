@@ -3,7 +3,7 @@
 #define BUFSIZE 512
 
 #include "stream_reader.hpp"
-
+#include "cmsis_os.h"
 
 enum AUTOMSTATE{
     IDLE,
@@ -40,6 +40,7 @@ class Controller{
         char responce_message_buffer[BUFSIZE];
         void compile_responce();
         int error_to_code(AUTOMERRORS err);
+        osMutexId mutex;
     public:
 
         Controller(HAL * usehal);

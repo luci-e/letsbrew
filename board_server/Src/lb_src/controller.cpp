@@ -28,6 +28,8 @@ Controller::Controller(HAL * usehal){
     state = IDLE;
     last_error = NOERROR;
     ticks_to_go = 0;
+    osMutexDef(mutex);
+    mutex = osMutexCreate (osMutex(mutex));
 }
 
 char * Controller::last_err_to_str(){
@@ -110,6 +112,7 @@ void Controller::parse(unsigned int channel,char new_character){
 
 	channels[channel].push_char(new_character);
 	if(channels[channel].message_complete){
+		osMutexWait(mutex,0);
 		letsbrew::lb_request lbr;
 		auto result =letsbrew::lb_parse_request( channels[channel].message_buffer, lbr );
 		if(result == PARSE_OK){
@@ -146,6 +149,7 @@ void Controller::parse(unsigned int channel,char new_character){
 			}
 		}
 		respond(channel,responce_message_buffer);
+		osMutexRelease(mutex);
 	}
 
 
