@@ -62,6 +62,8 @@ uint16_t tx_handle;
 uint16_t rx_handle;
 
 uint16_t lb_service_handle, lb_tx_char_handle, lb_rx_char_handle;
+void (*lb_controller_receive_cb)(int, char);
+
 
 #define RX_TX_BUFFER_LEN 255u
 
@@ -77,6 +79,14 @@ do {\
 /* Store Value into a buffer in Little Endian Format */
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
                                    ((buf)[1] =  (uint8_t) (val>>8) ) )
+
+/**
+ * Set the controller cb to be called when a request is received from the bluetooth
+ * @param lb_controller_cb
+ */
+void set_controller_cb( void(*lb_controller_cb)(int, char) ){
+    lb_controller_receive_cb = lb_controller_cb;
+}
 
 
 void lb_make_connection(void)
@@ -112,8 +122,9 @@ void lb_make_connection(void)
  * @retval None
  */
 void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no) {
-  PRINTF("%s\n", data_buffer);
-  //TODO add callback to controller function
+  for( uint8_t i = 0; i < bytes_no; i++){
+      lb_controller_receive_cb(1, data_buffer[i]);
+  }
 }
 
 /**

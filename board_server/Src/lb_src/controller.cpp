@@ -87,25 +87,6 @@ void Controller::compile_response(){
 
 void Controller::parse(unsigned int channel,char new_character){
 
-//	for ( auto c : good_request ) {
-//		auto ret = sr.push_char( c );
-//
-//		switch ( ret ) {
-//			case STREAM_CODES::STREAM_OUT_OF_BOUND:
-//			{
-//				cout << "Stream out of bound " << endl;
-//				goto out;
-//			}
-//
-//			case STREAM_CODES::STREAM_DONE:
-//			{
-//				cout << "Stream done " << endl;
-//				goto out;
-//			}
-//
-//		}
-//	}out:
-
 	if(channel>=NUMCHANNELS){
 		return;
 	}
@@ -113,9 +94,9 @@ void Controller::parse(unsigned int channel,char new_character){
 
 	channels[channel].push_char(new_character);
 	if(channels[channel].message_complete){
-		osMutexWait(mutex,0);
 		letsbrew::lb_request lbr;
 		auto result =letsbrew::lb_parse_request( channels[channel].message_buffer, lbr );
+        osMutexWait(mutex,0);
 		if(result == PARSE_OK){
 			switch(lbr.request_header.CMD){
 			case BREW:

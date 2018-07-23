@@ -7,8 +7,6 @@
 
 #pragma once
 
-
-
 #include "bluenrg_gap.h"
 #include "string.h"
 #include "hci_const.h"
@@ -22,6 +20,12 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+ /**
+  * Set the controller cb to be called when a request is received from the bluetooth
+  * @param lb_controller_cb
+  */
+ void set_controller_cb( void(*lb_controller_cb)(int, char) );
 
 /**
  * Make a new connection

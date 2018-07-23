@@ -41,6 +41,7 @@ class Controller{
         void compile_response();
         int error_to_code(AUTOMERRORS err);
         osMutexId mutex;
+
     public:
 
         Controller(HAL * usehal);
@@ -52,6 +53,7 @@ class Controller{
         char * state_to_str();
         char * last_err_to_str();
         char * err_to_str(AUTOMERRORS err);
+
         void parse(unsigned int channel,char new_character);
 };
 }
