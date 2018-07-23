@@ -5,7 +5,7 @@
 
 
 #include <string>
-
+#include <cstdio>
 #include "lb_protocol.hpp"
 
 
@@ -39,7 +39,7 @@ char * Controller::last_err_to_str(){
 char * Controller::err_to_str(AUTOMERRORS err){
     switch(err){
         case NOERROR:
-            return "No error";
+            return "OK";
         case BREWINPROGRESS:
             return "Brewing already in progress";
         case BREWTEMPERATURETOOHIGH:
@@ -55,6 +55,31 @@ char * Controller::err_to_str(AUTOMERRORS err){
         	break;
 
     }
+}
+int Controller::error_to_code(AUTOMERRORS err){
+
+	switch(err){
+	        case NOERROR:
+	            return 200;
+	        case BREWINPROGRESS:
+	            return 409;
+	        case BREWTEMPERATURETOOHIGH:
+	            return 410;
+	        case HEATERERROR:
+	            return 500;
+	        case KEEPWARMTOOCOLD:
+	            return 417;
+	        case KEEPWARMINPROGRESS:
+	            return 421;
+	        default:
+	        	return 501;
+	        	break;
+
+	    }
+}
+
+void Controller::compile_responce(){
+	snprintf( responce_message_buffer, BUFSIZE, "%d %s, %s", error_to_code(last_error), last_err_to_str(),state_to_str());
 }
 
 void Controller::parse(unsigned int channel,char new_character){
@@ -93,30 +118,34 @@ void Controller::parse(unsigned int channel,char new_character){
 			{
 					auto er = brew();
 					retMesg = err_to_str(er);
+					compile_responce();
 					break;
 			}
 			case CANCEL:
 			{
 					abort();
 					retMesg = last_err_to_str();
+					compile_responce();
 					break;
 			}
 			case(STATE):
 			{
 					retMesg = last_err_to_str();
+					compile_responce();
 					break;
 			}
 			case(KEEPWARM):
 			{
-					unsigned int duration = stoi(lbr.request_params["DURAITON"]);
+					unsigned int duration = stoi(lbr.request_params["DURATION"]);
 					auto er=keep_warm(duration);
 					retMesg = err_to_str(er);
+					compile_responce();
 					break;
 			}
 
 			}
 		}
-		respond(channel,retMesg);
+		respond(channel,responce_message_buffer);
 	}
 
 
@@ -126,7 +155,17 @@ void Controller::parse(unsigned int channel,char new_character){
 
 
 void Controller::respond(unsigned int channel, char * msg){
-	;;;;//tudu tudu tudududududududu (running in the 90s)
+	switch(channel){
+	case 0:
+		hal->write_on_uart(msg);
+		break;
+	case 1:
+		hal->write_on_bluetooth(msg);
+		break;
+	default:
+		break;
+	}
+
 }
 
 char * Controller::state_to_str(){

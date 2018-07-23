@@ -143,7 +143,7 @@ int main(void)
 
   MX_USART2_UART_Init();
 
-    HAL hal;
+    HAL hal(write_on_uart2,NULL);//HUGE TODO
     c = new Controller(&hal);
 
   /* USER CODE END 2 */
