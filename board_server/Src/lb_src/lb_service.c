@@ -63,6 +63,8 @@ uint16_t rx_handle;
 
 uint16_t lb_service_handle, lb_tx_char_handle, lb_rx_char_handle;
 
+#define RX_TX_BUFFER_LEN 255u
+
 /* Private macros ------------------------------------------------------------*/
 #define COPY_UUID_128(uuid_struct, uuid_15, uuid_14, uuid_13, uuid_12, uuid_11, uuid_10, uuid_9, uuid_8, uuid_7, uuid_6, uuid_5, uuid_4, uuid_3, uuid_2, uuid_1, uuid_0) \
 do {\
@@ -110,11 +112,7 @@ void lb_make_connection(void)
  * @retval None
  */
 void receiveData(uint8_t* data_buffer, uint8_t Nb_bytes) {
-  for(int i = 0; i < Nb_bytes; i++) {
-    PRINTF("%c", data_buffer[i]);
-  }
-
-  PRINTF("\n");
+  PRINTF("%s\n", data_buffer);
 }
 
 /**
@@ -253,16 +251,37 @@ int lb_add_brewing_service(){
 	const uint8_t char_UUID_rx[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
 	const uint8_t char_UUID_tx[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe2,0xf2,0x73,0xd9};
 
-	ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &lb_service_handle); /* original is 9?? */
-	if (ret != BLE_STATUS_SUCCESS) goto fail;
+	const uint8_t name_UUID[2] = { 0x01, 0x29 };
 
-	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_rx, 20, CHAR_PROP_READ | CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
-						   16, 1, &lb_tx_char_handle);
-	if (ret != BLE_STATUS_SUCCESS) goto fail;
+	/* Add the main service */
+	ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &lb_service_handle);
+	if (ret != BLE_STATUS_SUCCESS) { goto fail; }
 
-	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_tx, 20, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
-						   16, 1, &lb_rx_char_handle);
-	if (ret != BLE_STATUS_SUCCESS) goto fail;
+
+	/* Add the write buffer to reply to the client */
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_tx, RX_TX_BUFFER_LEN, CHAR_PROP_READ | CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
+	        MAX_ENCRY_KEY_SIZE, CHAR_VALUE_LEN_VARIABLE, &lb_tx_char_handle);
+    if (ret != BLE_STATUS_SUCCESS) { goto fail; }
+
+    /* Add the read buffer to get requests from the client */
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_rx, RX_TX_BUFFER_LEN, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
+	        MAX_ENCRY_KEY_SIZE, CHAR_VALUE_LEN_VARIABLE, &lb_rx_char_handle);
+    if (ret != BLE_STATUS_SUCCESS) { goto fail; }
+
+//    /* Give a name to the char */
+//    char lb_tx_buff_char_name[] = "lb_tx_buffer";
+//    uint16_t tx_name_UUID;
+//    ret = aci_gatt_add_char_desc(lb_service_handle, lb_tx_char_handle, UUID_TYPE_16, name_UUID, (uint8_t) 15, (uint8_t) strlen(lb_tx_buff_char_name), lb_tx_buff_char_name,
+//                        ATTR_PERMISSION_ENCRY_READ, ATTR_ACCESS_READ_ONLY, GATT_DONT_NOTIFY_EVENTS, MAX_ENCRY_KEY_SIZE, CHAR_VALUE_LEN_CONSTANT, &tx_name_UUID);
+//    if (ret != BLE_STATUS_SUCCESS) { goto fail; }
+//
+//    /* Give a name to the char */
+//   char lb_rx_buff_char_name[] = "lb_rx_buffer";
+//   uint16_t rx_name_UUID;
+//   ret = aci_gatt_add_char_desc(lb_service_handle, lb_rx_char_handle, UUID_TYPE_16, name_UUID, (uint8_t) 15, (uint8_t) strlen(lb_rx_buff_char_name), lb_rx_buff_char_name,
+//                       ATTR_PERMISSION_ENCRY_READ, ATTR_ACCESS_READ_ONLY, GATT_DONT_NOTIFY_EVENTS, MAX_ENCRY_KEY_SIZE, CHAR_VALUE_LEN_CONSTANT, &rx_name_UUID);
+//   if (ret != BLE_STATUS_SUCCESS) { goto fail; }
+
 
 	PRINTF("Sample Service added.\nTX Char Handle %04X, RX Char Handle %04X\n", lb_tx_char_handle, lb_rx_char_handle);
 	return BLE_STATUS_SUCCESS;

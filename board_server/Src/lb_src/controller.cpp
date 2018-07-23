@@ -7,6 +7,7 @@
 #include <string>
 #include <cstdio>
 #include "lb_protocol.hpp"
+#include "lb_service.h"
 
 
 #define TIMETOBREW 60
@@ -151,9 +152,6 @@ void Controller::parse(unsigned int channel,char new_character){
 		respond(channel,responce_message_buffer);
 		osMutexRelease(mutex);
 	}
-
-
-
 
 }
 
