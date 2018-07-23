@@ -123,7 +123,7 @@ void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no) {
 int lb_transmit_data(char* data_buffer){
     tBleStatus ret;
 
-    aci_gatt_write_charac_value(connection_handle, lb_tx_char_handle, (uint8_t) (strlen(data_buffer) + 1u), data_buffer);
+    ret = aci_gatt_write_charac_value(connection_handle, lb_tx_char_handle, (uint8_t) (strlen(data_buffer) + 1u), (uint8_t*) data_buffer);
     if (ret != BLE_STATUS_SUCCESS) { return BLE_STATUS_ERROR ; }
 
     return BLE_STATUS_SUCCESS;
