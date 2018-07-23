@@ -133,8 +133,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-void write_on_uart2(char * str){
-	HAL_UART_Transmit( &huart2, ( uint8_t * )str, strlen( str ), 5000 );
+int write_on_uart2(char * str){
+	return HAL_UART_Transmit( &huart2, ( uint8_t * )str, strlen( str ), 5000 );
 }
 /* USER CODE END 1 */
 

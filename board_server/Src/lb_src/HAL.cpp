@@ -2,9 +2,9 @@
 #include "HAL.hpp"
 #include "boiler.h"
 
-HAL::HAL(void (*uwf)(char*),void(*bwf)(char*)){
-	uart_write_function = uwf;
-	bt_write_function = bwf;
+HAL::HAL(int (*uart_write_fun)(char*),int(*bluetooth_write_fun)(char*)){
+	uart_write_function = uart_write_fun;
+	bt_write_function = bluetooth_write_fun;
 }
 
 void HAL::stop_heater(){

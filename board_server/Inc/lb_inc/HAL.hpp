@@ -3,10 +3,10 @@
 
 class HAL{
 private:
-	void (*uart_write_function)(char*);
-	void (*bt_write_function)(char*);
+	int (*uart_write_function)(char*);
+	int (*bt_write_function)(char*);
     public:
-		HAL(void (*uwf)(char*),void(*bwf)(char*));
+		HAL(int (*uart_write_fun)(char*),int(*bluetooth_write_fun)(char*));
         void stop_heater();
         void start_heater();
    

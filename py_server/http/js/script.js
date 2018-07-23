@@ -93,7 +93,7 @@ function stringify_form( form_id ){
 		cmd_data[pair.name] = ( isNaN( Number(pair.value) ) ? pair.value : Number(pair.value));
 	});
 
-	return JSON.stringify(cmd_data);
+	return JSON.stringify(cmd_data, null, 2);
 }
 
 // Show the divs in the given form with the given id, hide the others
@@ -114,12 +114,12 @@ function init_script(){
 	$('select[name="CMD"]').on('change', ( event ) => {
 		var jq_target =  $(event.target);
 		var selected = jq_target.find("option:selected").text();
-		var form_id = jq_target.next('div[name="cmd_param"]').prop("id");
-		var param_id = jq_target.next('div[name="cmd_param"]').prop("id");
+		var form_id = '#' + jq_target.parent('form').prop("id");
 		
 		switch( selected ){
 			case 'BREW':
-				show_cmd_params(form_id, 'BREW_params')
+				var param_id = '#' + $(form_id).find('div[data-cmd_param="BREW_params"]').prop("id");
+				show_cmd_params(form_id, param_id)
 				break;
 			case 'STATE':
 				show_cmd_params(form_id, null)
