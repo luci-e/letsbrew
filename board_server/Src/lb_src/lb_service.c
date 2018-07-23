@@ -58,6 +58,9 @@ __IO uint8_t set_connectable = 1;
 __IO uint16_t connection_handle = 0;
 __IO uint8_t notification_enabled = FALSE;
 
+uint16_t tx_handle;
+uint16_t rx_handle;
+
 uint16_t lb_service_handle, lb_tx_char_handle, lb_rx_char_handle;
 
 /* Private macros ------------------------------------------------------------*/
@@ -98,6 +101,52 @@ void lb_make_connection(void)
 
 }
 
+
+/**
+ * @brief  This function is used to receive data related to the sample service
+ *         (received over the air from the remote board).
+ * @param  data_buffer : pointer to store in received data
+ * @param  Nb_bytes : number of bytes to be received
+ * @retval None
+ */
+void receiveData(uint8_t* data_buffer, uint8_t Nb_bytes) {
+  for(int i = 0; i < Nb_bytes; i++) {
+    PRINTF("%c", data_buffer[i]);
+  }
+
+  PRINTF("\n");
+}
+
+/**
+ * @brief  This function is called when an attribute gets modified
+ * @param  handle : handle of the attribute
+ * @param  data_length : size of the modified attribute data
+ * @param  att_data : pointer to the modified attribute data
+ * @retval None
+ */
+void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
+{
+  if(handle == lb_rx_char_handle + 1){
+    receiveData(att_data, data_length);
+  } else if (handle == lb_tx_char_handle + 2) {
+    if(att_data[0] == 0x01)
+      notification_enabled = TRUE;
+  }
+}
+
+/**
+ * @brief  This function is called when there is a notification from the sever.
+ * @param  attr_handle Handle of the attribute
+ * @param  attr_len    Length of attribute value in the notification
+ * @param  attr_value  Attribute value in the notification
+ * @retval None
+ */
+void GATT_Notification_CB(uint16_t attr_handle, uint8_t attr_len, uint8_t *attr_value)
+{
+  if (attr_handle == tx_handle+1) {
+    receiveData(attr_value, attr_len);
+  }
+}
 
 /**
  * @brief  Puts the device in connectable mode.
@@ -181,8 +230,10 @@ void lb_GAP_disconnection_complete_cb(void)
  * @retval None
  */
 void Read_Request_CB(uint16_t handle){
-  if(connection_handle != 0)
+  if(connection_handle != 0){
     aci_gatt_allow_read(connection_handle);
+    PRINTF("Read request!\n");
+  }
 }
 
 /**
@@ -199,17 +250,17 @@ int lb_add_brewing_service(){
 	*/
 
 	const uint8_t service_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe0,0xf2,0x73,0xd9};
-	const uint8_t charUuidTX[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
-	const uint8_t charUuidRX[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe2,0xf2,0x73,0xd9};
+	const uint8_t char_UUID_rx[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
+	const uint8_t char_UUID_tx[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe2,0xf2,0x73,0xd9};
 
 	ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &lb_service_handle); /* original is 9?? */
 	if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, charUuidTX, 20, CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_rx, 20, CHAR_PROP_READ | CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
 						   16, 1, &lb_tx_char_handle);
 	if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, charUuidRX, 20, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
+	ret =  aci_gatt_add_char(lb_service_handle, UUID_TYPE_128, char_UUID_tx, 20, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
 						   16, 1, &lb_rx_char_handle);
 	if (ret != BLE_STATUS_SUCCESS) goto fail;
 
@@ -229,53 +280,59 @@ int lb_add_brewing_service(){
  * @param  void* Pointer to the ACI packet
  * @retval None
  */
-void lb_user_notify(void * pData)
-{
-  hci_uart_pckt *hci_pckt = pData;
-  /* obtain event packet */
-  hci_event_pckt *event_pckt = (hci_event_pckt*)hci_pckt->data;
+void lb_user_notify(void * pData){
+    hci_uart_pckt *hci_pckt = pData;
+    /* obtain event packet */
+    hci_event_pckt *event_pckt = (hci_event_pckt*) hci_pckt->data;
 
-  if(hci_pckt->type != HCI_EVENT_PKT)
-    return;
+    if (hci_pckt->type != HCI_EVENT_PKT)
+        return;
 
-  switch(event_pckt->evt){
-
-  case EVT_DISCONN_COMPLETE:
-    {
-      lb_GAP_disconnection_complete_cb();
-    }
-    break;
-
-  case EVT_LE_META_EVENT:
-    {
-      evt_le_meta_event *evt = (void *)event_pckt->data;
-
-      switch(evt->subevent){
-      case EVT_LE_CONN_COMPLETE:
-        {
-          evt_le_connection_complete *cc = (void *)evt->data;
-          lb_GAP_connection_complete_cb(cc->peer_bdaddr, cc->handle);
+    switch (event_pckt->evt) {
+        case EVT_DISCONN_COMPLETE: {
+            lb_GAP_disconnection_complete_cb();
         }
         break;
-      }
-    }
-    break;
 
-  case EVT_VENDOR:
-    {
-      evt_blue_aci *blue_evt = (void*)event_pckt->data;
-      switch(blue_evt->ecode){
+        case EVT_LE_META_EVENT: {
+            evt_le_meta_event *evt = (void *) event_pckt->data;
 
-      case EVT_BLUE_GATT_READ_PERMIT_REQ:
-        {
-          evt_gatt_read_permit_req *pr = (void*)blue_evt->data;
-          Read_Request_CB(pr->attr_handle);
+            switch (evt->subevent) {
+                case EVT_LE_CONN_COMPLETE: {
+                    evt_le_connection_complete *cc = (void *) evt->data;
+                    lb_GAP_connection_complete_cb(cc->peer_bdaddr, cc->handle);
+                }
+                break;
+            }
         }
         break;
-      }
+
+        case EVT_VENDOR: {
+            evt_blue_aci *blue_evt = (void*) event_pckt->data;
+            switch (blue_evt->ecode) {
+
+                case EVT_BLUE_GATT_ATTRIBUTE_MODIFIED: {
+                    evt_gatt_attr_modified_IDB05A1 *evt = (evt_gatt_attr_modified_IDB05A1*) blue_evt->data;
+                    Attribute_Modified_CB(evt->attr_handle, evt->data_length, evt->att_data);
+                    break;
+                }
+
+                case EVT_BLUE_GATT_READ_PERMIT_REQ: {
+                    evt_gatt_read_permit_req *pr = (void*) blue_evt->data;
+                    Read_Request_CB(pr->attr_handle);
+                    break;
+                }
+
+                case EVT_BLUE_GATT_NOTIFICATION: {
+                    evt_gatt_attr_notification *evt = (evt_gatt_attr_notification*) blue_evt->data;
+                    GATT_Notification_CB(evt->attr_handle, evt->event_data_length - 2, evt->attr_value);
+                    break;
+                }
+                break;
+            }
+        }
+        break;
     }
-    break;
-  }
 }
 
 #ifdef __cplusplus

@@ -163,6 +163,7 @@ AUTOMERRORS Controller::abort(){
     ticks_to_go = 0;
     return last_error;
 }
+
 AUTOMERRORS Controller::keep_warm(unsigned int seconds){
     switch(state){
         case IDLE:
@@ -196,6 +197,7 @@ AUTOMERRORS Controller::keep_warm(unsigned int seconds){
     }
     return last_error;
 }
+
 AUTOMERRORS Controller::brew(){
     switch(state){
         case IDLE:

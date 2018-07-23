@@ -172,14 +172,14 @@ void MX_BlueNRG_MS_Process(void)
 {
   /* USER CODE BEGIN BlueNRG_MS_Process_PreTreatment */
   
-	  if (set_connectable)
-	  {
-	    /* Establish connection with remote device */
-	    lb_make_connection();
-	    set_connectable = FALSE;
-	  }
+  if (set_connectable)
+  {
+    /* Establish connection with remote device */
+    lb_make_connection();
+    set_connectable = FALSE;
+  }
 
-	  hci_user_evt_proc();
+  hci_user_evt_proc();
 
   /* USER CODE END BlueNRG_MS_Process_PreTreatment */
   

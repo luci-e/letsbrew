@@ -87,15 +87,16 @@ Controller * c;
 void SystemClock_Config(void);
 
 extern "C"{
-	void callback (TimerHandle_t xTimer){
+	void controller_callback(TimerHandle_t xTimer){
 	  c->tick();
 	}
 
-	void parsingCallback(int chan,uint8_t msg){
-	  c->parse(chan,msg);
+	void parsing_callback( int channel, char new_char ){
+	  c->parse( channel, new_char );
 	}
+
+	void MX_FREERTOS_Init(void);
 }
-extern "C" void MX_FREERTOS_Init(void);
 
 
 
@@ -140,8 +141,10 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL hal;
-	c = new Controller(&hal);
+  MX_USART2_UART_Init();
+
+    HAL hal;
+    c = new Controller(&hal);
 
   /* USER CODE END 2 */
 

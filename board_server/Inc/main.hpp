@@ -55,6 +55,7 @@
 
 /* USER CODE BEGIN Includes */
 
+
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -78,9 +79,14 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
 void _Error_Handler(char *, int);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+
+
+void MX_FREERTOS_Init(void);
+
 #ifdef __cplusplus
 }
 #endif

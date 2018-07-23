@@ -69,7 +69,6 @@ osThreadId defaultTaskHandle;
 #define TIMER_MS 1000
 #define UARTRCVTIMEOUT 500
 
-void (*pkb)(int,uint8_t);
 const unsigned int delay_ms[3] = { 1000,500,100};
 unsigned volatile int blink_mode = 0;
 
@@ -79,14 +78,15 @@ extern UART_HandleTypeDef huart2;
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-void LedBlinkTask(void const * argument);
-void UART_read_task(void const * argument);
-
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
 
-extern void callback (TimerHandle_t xTimer);
+void LedBlinkTask(void const * argument);
+void UART_read_task(void const * argument);
+
+extern void parsing_callback( int channel, char new_char );
+extern void controller_callback (TimerHandle_t xTimer);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -117,7 +117,7 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 2048);
   osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
 
-  osTimerDef(Controller_Timer, callback);
+  osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
@@ -169,7 +169,7 @@ void UART_read_task(void const * argument)
 	  uint8_t c;
 	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
 	  HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT);
-	  pkb(0,c);
+	  parsing_callback( 0, c );
   }
 }
      
