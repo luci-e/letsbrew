@@ -69,7 +69,7 @@ extern ADC_HandleTypeDef hadc1;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
-
+unsigned int adc2_read();
 void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
