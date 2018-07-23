@@ -137,4 +137,4 @@ Board spec
 When trying to configure the application for bluetooth, the documentation for cubemx is in packs/docs
 
 PB0 - opto
-PA4 - ADC
+PC1 - ADC
