@@ -37,8 +37,8 @@ class Controller{
 	private:
         void timer_expired();
         void respond(unsigned int channel, char * msg);
-        char responce_message_buffer[BUFSIZE];
-        void compile_responce();
+        char response_message_buffer[BUFSIZE];
+        void compile_response();
         int error_to_code(AUTOMERRORS err);
         osMutexId mutex;
     public:

@@ -69,6 +69,7 @@
 #include <string.h>
 
 #include "controller.hpp"
+#include "lb_service.h"
 
 /* USER CODE END Includes */
 
@@ -143,8 +144,8 @@ int main(void)
 
   MX_USART2_UART_Init();
 
-    HAL hal(write_on_uart2,NULL);//HUGE TODO
-    c = new Controller(&hal);
+  HAL hal(write_on_uart2, lb_transmit_data);
+  c = new Controller(&hal);
 
   /* USER CODE END 2 */
 

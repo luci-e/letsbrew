@@ -29,6 +29,40 @@
 void lb_make_connection(void);
 
 /**
+ * @brief  This function is used to receive data related to the sample service
+ *         (received over the air from the remote board).
+ * @param  data_buffer : pointer to store in received data
+ * @param  Nb_bytes : number of bytes to be received
+ * @retval None
+ */
+void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no);
+
+
+/**
+ * Transmit the data by writing on the tx buffer
+ * @param data_buffer
+ */
+int lb_transmit_data(char* data_buffer);
+
+/**
+ * @brief  This function is called when an attribute gets modified
+ * @param  handle : handle of the attribute
+ * @param  data_length : size of the modified attribute data
+ * @param  att_data : pointer to the modified attribute data
+ * @retval None
+ */
+void lb_attribute_modified_cb(uint16_t handle, uint8_t data_length, uint8_t *att_data);
+
+/**
+ * @brief  This function is called when there is a notification from the sever.
+ * @param  attr_handle Handle of the attribute
+ * @param  attr_len    Length of attribute value in the notification
+ * @param  attr_value  Attribute value in the notification
+ * @retval None
+ */
+void lb_GATT_notification_cb(uint16_t attr_handle, uint8_t attr_len, uint8_t *attr_value);
+
+/**
  * @brief  Make the device connectable advertise its services
  * @param  None
  * @retval None
@@ -49,6 +83,14 @@ void       lb_GAP_connection_complete_cb(uint8_t addr[6], uint16_t handle);
  * @retval None
  */
 void       lb_GAP_disconnection_complete_cb(void);
+
+
+/**
+ * @brief  Read request callback.
+ * @param  uint16_t Handle of the attribute
+ * @retval None
+ */
+void lb_read_request_cb(uint16_t handle);
 
 /**
  * Add the brewing services to the controller

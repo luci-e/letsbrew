@@ -111,8 +111,22 @@ void lb_make_connection(void)
  * @param  Nb_bytes : number of bytes to be received
  * @retval None
  */
-void receiveData(uint8_t* data_buffer, uint8_t Nb_bytes) {
+void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no) {
   PRINTF("%s\n", data_buffer);
+  //TODO add callback to controller function
+}
+
+/**
+ * Transmit the data by writing on the tx buffer
+ * @param data_buffer
+ */
+int lb_transmit_data(char* data_buffer){
+    tBleStatus ret;
+
+    aci_gatt_write_charac_value(connection_handle, lb_tx_char_handle, (uint8_t) (strlen(data_buffer) + 1u), data_buffer);
+    if (ret != BLE_STATUS_SUCCESS) { return BLE_STATUS_ERROR ; }
+
+    return BLE_STATUS_SUCCESS;
 }
 
 /**
@@ -122,13 +136,10 @@ void receiveData(uint8_t* data_buffer, uint8_t Nb_bytes) {
  * @param  att_data : pointer to the modified attribute data
  * @retval None
  */
-void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
+void lb_attribute_modified_cb(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
   if(handle == lb_rx_char_handle + 1){
-    receiveData(att_data, data_length);
-  } else if (handle == lb_tx_char_handle + 2) {
-    if(att_data[0] == 0x01)
-      notification_enabled = TRUE;
+    lb_receive_data(att_data, data_length);
   }
 }
 
@@ -139,10 +150,10 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
  * @param  attr_value  Attribute value in the notification
  * @retval None
  */
-void GATT_Notification_CB(uint16_t attr_handle, uint8_t attr_len, uint8_t *attr_value)
+void lb_GATT_notification_cb(uint16_t attr_handle, uint8_t attr_len, uint8_t *attr_value)
 {
   if (attr_handle == tx_handle+1) {
-    receiveData(attr_value, attr_len);
+    lb_receive_data(attr_value, attr_len);
   }
 }
 
@@ -227,7 +238,7 @@ void lb_GAP_disconnection_complete_cb(void)
  * @param  uint16_t Handle of the attribute
  * @retval None
  */
-void Read_Request_CB(uint16_t handle){
+void lb_read_request_cb(uint16_t handle){
   if(connection_handle != 0){
     aci_gatt_allow_read(connection_handle);
     PRINTF("Read request!\n");
@@ -332,19 +343,19 @@ void lb_user_notify(void * pData){
 
                 case EVT_BLUE_GATT_ATTRIBUTE_MODIFIED: {
                     evt_gatt_attr_modified_IDB05A1 *evt = (evt_gatt_attr_modified_IDB05A1*) blue_evt->data;
-                    Attribute_Modified_CB(evt->attr_handle, evt->data_length, evt->att_data);
+                    lb_attribute_modified_cb(evt->attr_handle, evt->data_length, evt->att_data);
                     break;
                 }
 
                 case EVT_BLUE_GATT_READ_PERMIT_REQ: {
                     evt_gatt_read_permit_req *pr = (void*) blue_evt->data;
-                    Read_Request_CB(pr->attr_handle);
+                    lb_read_request_cb(pr->attr_handle);
                     break;
                 }
 
                 case EVT_BLUE_GATT_NOTIFICATION: {
                     evt_gatt_attr_notification *evt = (evt_gatt_attr_notification*) blue_evt->data;
-                    GATT_Notification_CB(evt->attr_handle, evt->event_data_length - 2, evt->attr_value);
+                    lb_GATT_notification_cb(evt->attr_handle, evt->event_data_length - 2, evt->attr_value);
                     break;
                 }
                 break;

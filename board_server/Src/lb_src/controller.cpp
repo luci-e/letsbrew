@@ -81,8 +81,8 @@ int Controller::error_to_code(AUTOMERRORS err){
 	    }
 }
 
-void Controller::compile_responce(){
-	snprintf( responce_message_buffer, BUFSIZE, "%d %s, %s", error_to_code(last_error), last_err_to_str(),state_to_str());
+void Controller::compile_response(){
+	snprintf( response_message_buffer, BUFSIZE, "%d %s, %s", error_to_code(last_error), last_err_to_str(),state_to_str());
 }
 
 void Controller::parse(unsigned int channel,char new_character){
@@ -122,20 +122,20 @@ void Controller::parse(unsigned int channel,char new_character){
 			{
 					auto er = brew();
 					retMesg = err_to_str(er);
-					compile_responce();
+					compile_response();
 					break;
 			}
 			case CANCEL:
 			{
 					abort();
 					retMesg = last_err_to_str();
-					compile_responce();
+					compile_response();
 					break;
 			}
 			case(STATE):
 			{
 					retMesg = last_err_to_str();
-					compile_responce();
+					compile_response();
 					break;
 			}
 			case(KEEPWARM):
@@ -143,13 +143,13 @@ void Controller::parse(unsigned int channel,char new_character){
 					unsigned int duration = stoi(lbr.request_params["DURATION"]);
 					auto er=keep_warm(duration);
 					retMesg = err_to_str(er);
-					compile_responce();
+					compile_response();
 					break;
 			}
 
 			}
 		}
-		respond(channel,responce_message_buffer);
+		respond(channel,response_message_buffer);
 		osMutexRelease(mutex);
 	}
 
