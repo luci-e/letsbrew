@@ -104,6 +104,8 @@ tr:first-child{
 	background-color: #ebf3ef;
 
 	margin: 0 0.1em 0 0.1em;
+
+	cursor:pointer;
 }
 
 .selected_tab_button{

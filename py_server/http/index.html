@@ -21,39 +21,40 @@
 
         <div class="center_tab" id="lb_web_form">
             Make a request:<br>
-            <form id="teaform" action="index.html">
+            <form id="teaform_web" action="index.html">
                 CMD:
-                <select name="CMD" id="cmd_selector">
+                <select name="CMD" id="cmd_selector_web">
                     <option value="BREW">BREW</option>
                     <option value="STATE">STATE</option>
                 </select><br>
 
                 OPTIONS:
-                <div name="cmd_param" id="BREW_params">
+                <div name="cmd_param" id="BREW_params_web">
                     Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
                     Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
                 </div>
 
-                <button onclick="send_data('#teaform')">Let's brew</button>
+                <button onclick="send_data_web('#teaform_web')">Let's brew</button>
             </form>
         </div>
 
         <div class="center_tab" id="lb_bt_form" style="display:none;">
             Make a blerequest:<br>
-            <form id="teaform" action="index.html">
+            <button id="find_brewy"> Find me boiler </button>
+            <form id="teaform_bt" action="index.html">
                 CMD:
-                <select name="CMD" id="cmd_selector">
+                <select name="CMD" id="cmd_selector_bt">
                     <option value="BREW">BREW</option>
                     <option value="STATE">STATE</option>
                 </select><br>
 
                 OPTIONS:
-                <div name="cmd_param" id="BREW_params">
+                <div name="cmd_param" id="BREW_params_bt">
                     Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
                     Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
                 </div>
 
-                <button onclick="send_data('#teaform')">Let's brew</button>
+                <button onclick="send_data_bt('#teaform_bt')">Let's brew</button>
             </form>
         </div>
 
