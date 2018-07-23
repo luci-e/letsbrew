@@ -22,6 +22,9 @@
         <div class="center_tab" id="lb_web_form">
             Make a request:<br>
             <form id="teaform_web" action="index.html">
+
+                <input type="text" value="can't touch this" readonly>
+
                 CMD:
                 <select name="CMD" id="cmd_selector_web">
                     <option value="BREW">BREW</option>
@@ -29,10 +32,10 @@
                 </select><br>
 
                 OPTIONS:
-                <div name="cmd_param" id="BREW_params_web">
+                <div name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_web">
                     Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
                     Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
-                </div>
+                </div><br>
 
                 <button onclick="send_data_web('#teaform_web')">Let's brew</button>
             </form>
@@ -42,6 +45,9 @@
             Make a blerequest:<br>
             <button id="find_brewy"> Find me boiler </button>
             <form id="teaform_bt" action="index.html">
+
+                <input type="text" value="can't touch this" readonly>
+
                 CMD:
                 <select name="CMD" id="cmd_selector_bt">
                     <option value="BREW">BREW</option>
@@ -49,10 +55,10 @@
                 </select><br>
 
                 OPTIONS:
-                <div name="cmd_param" id="BREW_params_bt">
+                <div name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_bt">
                     Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
                     Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
-                </div>
+                </div><br>
 
                 <button onclick="send_data_bt('#teaform_bt')">Let's brew</button>
             </form>
