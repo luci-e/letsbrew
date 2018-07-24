@@ -25,9 +25,9 @@ Requests messages
 
 {
 	ID : 32bit unsigned integer
-	CMD : [ BREW | CANCEL | STATE | KEEPWARM ]
 	USR : 32bit unsigned integer
 	TIME : timestamp
+	CMD : [ BREW | CANCEL | STATE | KEEPWARM ]
 	\newline
 	CMD_PARAM_0 : value_0
 	CMD_PARAM_1 : value_1
@@ -37,9 +37,9 @@ Requests messages
 
 {
 	ID : xxx
-	CMD : BREW
 	USR : xxx
 	TIME : xxx
+	CMD : BREW
 	\newline
 	EXEC_TIME : timestamp
 	H2O_TEMP : integer between 0 and 100
@@ -48,27 +48,27 @@ Requests messages
 
 {
 	ID : xxx
-	CMD : CANCEL
 	USR : xxx
 	TIME : xxx
+	CMD : CANCEL
 	\newline
 	CANC_ID : xxx
 }
 
 {
 	ID : xxx
-	CMD : STATE
 	USR : xxx
 	TIME : xxx
+	CMD : STATE
 	\newline
 }
 
 
 {
 	ID : xxx
-	CMD : KEEPWARM
 	USR : xxx
 	TIME : xxx
+	CMD : KEEPWARM
 	\newline
 	DURATION : uint32
 }
@@ -78,9 +78,9 @@ Response messages
 
 {
 	ID : 32bit unsigned integer
-	LENGTH : 32bit unsigned integer
 	SERVER : 32bit unsigned integer
 	TIME : timestamp
+	LENGTH : 32bit unsigned integer
 	\newline
 	RESPONSE_PARAM_0 : value_0
 	RESPONSE_PARAM_1 : value_1
@@ -90,9 +90,9 @@ Response messages
 
 BREW_RESPONSE: {
 	ID : xxx
-	LENGTH : 32bit unsigned integer
 	SERVER : 32bit unsigned integer
 	TIME : timestamp
+	LENGTH : 32bit unsigned integer
 	\newline
 	STATUS : [ QUEUED | FAILED | READY ]
 	MSG : 256 char
@@ -100,9 +100,9 @@ BREW_RESPONSE: {
 
 CANCEL_RESPONSE: {
 	ID : xxx
-	LENGTH : 32bit unsigned integer
 	SERVER : 32bit unsigned integer
 	TIME : timestamp
+	LENGTH : 32bit unsigned integer
 	\newline
 	STATUS : [ CANCELLED | FAILED ]
 	MSG : 256 char
@@ -110,9 +110,9 @@ CANCEL_RESPONSE: {
 
 STATE_RESPONSE: {
 	ID : xxx
-	LENGTH : 32bit unsigned integer
 	SERVER : 32bit unsigned integer
 	TIME : timestamp
+	LENGTH : 32bit unsigned integer
 	\newline
 	H2O_TEMP : integer between 0 and 100
 	H2O_AMOUNT : integer between 0 and x
@@ -120,9 +120,9 @@ STATE_RESPONSE: {
 
 KEEPWARM_RESPONSE: {
 	ID : xxx
-	LENGTH : 32bit unsigned integer
 	SERVER : 32bit unsigned integer
 	TIME : timestamp
+	LENGTH : 32bit unsigned integer
 	\newline
 	STATUS : [ TOO_HOT | TOO_COLD ]
 	MSG : 256 char

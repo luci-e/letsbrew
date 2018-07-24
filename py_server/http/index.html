@@ -40,7 +40,7 @@
 
                 <div class="teaform_grid_element" style="grid-area:options;">
 
-                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4 >OPTIONS: </h4></div>
+                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4>OPTIONS:</h4></div>
 
                     <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end;" name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_web">
                         <div style="grid-area : 1 / 1 / row1-end / col1-end;">Water temperature :</div><input style="grid-area : 1 / 2 / row1-end / col2-end;" type="number" name="H2O_TEMP" min="0" max="100">
@@ -49,13 +49,13 @@
 
 
                     <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end; display:none;" name="cmd_param" data-cmd_param="KEEPWARM_params" id="KEEPWARM_params_web">
-                        <div style="grid-area : 1 / 1 / row1-end / col2-end;"> Duration : </div> <input style="grid-area : 1 / 2 / row1-end / col2-end;" disabled type="number" name="DURATION" min="0" max="4294967295"><br>
+                        <div style="grid-area : 1 / 1 / row1-end / col2-end;"> Duration : </div> <input style="grid-area : 1 / 2 / row1-end / col2-end;" disabled type="number" name="DURATION" min="0" max="4294967295">
                     </div>
 
                 </div>
 
                 <div class="teaform_grid_element" style="grid-area:sender;">
-                    <button onclick="send_data_web('#teaform_web')">Let's brew</button>
+                    <button id="letsbrew_button_web" onclick="send_data_web('#teaform_web')">Let's brew</button>
                 </div>
 
             </form>
@@ -99,7 +99,7 @@
                 </div>
 
                 <div class="teaform_grid_element" style="grid-area:sender;">
-                    <button onclick="send_data_bt('#teaform_bt')">Let's brew</button>
+                    <button id="letsbrew_button_bt" onclick="send_data_bt('#teaform_bt')">Let's brew</button>
                 </div>
 
             </form>
