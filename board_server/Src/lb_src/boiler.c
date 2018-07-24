@@ -3,6 +3,32 @@
 #include <math.h>
 
 #define NTCABOVEMIDPOINT
+/*
+ * if NTCABOVEMIDPOINT is defined then our circuit is like this:
+ *
+ * 							vcc
+ * 							 |
+ * 							NTC
+ * 							 |
+ * 							 + --- ADC
+ * 							 |
+ * 							 R
+ * 							 |
+ * 							GND
+ *
+ * if NTCABOVEMIDPOINT is not defined then the circuit is
+ *
+ * 							vcc
+ * 							 |
+ * 							 R
+ * 							 |
+ * 							 + --- ADC
+ * 							 |
+ * 							NTC
+ * 							 |
+ * 							GND
+ */
+
 
 void heater_on(){
 	HAL_GPIO_WritePin(BOILERHEATERPORT, BOILERHEATERPIN, GPIO_PIN_RESET);
