@@ -172,7 +172,8 @@ void LedBlinkTask(void const * argument)
   while(1)
   {
 	  BSP_LED_Toggle(LED2);
-	  vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
+	  //vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
+	  osDelay(delay_ms[blink_mode]);
   }
 }
 
@@ -185,7 +186,9 @@ void UART_read_task(void const * argument)
 	  if(HAL_UART_Receive(&huart2, &c, (uint16_t) 1, UARTRCVTIMEOUT)==HAL_OK){
 		  parsing_callback( 0, c );
 	  }
-	  osDelay(1);
+	  else{
+		  osDelay(50);
+	  }
   }
 }
      

@@ -8,6 +8,7 @@
 #include <cstdio>
 #include "lb_protocol.hpp"
 #include "lb_service.h"
+#include "globals.h"
 #include <math.h>
 
 #define TIMETOBREW 60
@@ -17,7 +18,6 @@
 #define KWKEEPBELOW 65
 #define KWMINTOSTART 50
 
-#define UARTDEBUG
 
 #define seconds_to_ticks(x) x * 1
 #define ticks_to_seconds(x)  x
@@ -114,12 +114,13 @@ void Controller::parse(unsigned int channel,char new_character){
 	if(channels[channel].message_complete){
 		letsbrew::lb_request lbr;
 		auto result =letsbrew::lb_parse_request( channels[channel].message_buffer, lbr );
-        osMutexWait(mutex,0);
+        //osMutexWait(mutex,0);
 		if(result == PARSE_OK){
 			switch(lbr.request_header.CMD){
 			case BREW:
 			{
-					//auto er = brew();
+					//auto er =
+					brew();
 					compile_response();
 					break;
 			}
@@ -150,7 +151,7 @@ void Controller::parse(unsigned int channel,char new_character){
 			compile_response();
 		}
 		respond(channel,response_message_buffer);
-		osMutexRelease(mutex);
+		//osMutexRelease(mutex);
 	}
 
 }
