@@ -55,7 +55,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "app_bluenrg-ms.h"
-
+#include "globals.h"
 /* USER CODE BEGIN Includes */
 
 #include "stm32f4xx_nucleo.h"
@@ -115,6 +115,11 @@ extern "C"{
   *
   * @retval None
   */
+
+int dummy(char * ptr){
+
+}
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -143,8 +148,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   MX_USART2_UART_Init();
-
+#ifdef DISABLEBLUETOOTH
+  HAL hal(write_on_uart2, dummy);
+#else
   HAL hal(write_on_uart2, lb_transmit_data);
+#endif
   c = new Controller(&hal);
 
   // Set the callback for the bluetooth read
@@ -269,6 +277,7 @@ void _Error_Handler(char *file, int line)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
+
   }
   /* USER CODE END Error_Handler_Debug */
 }

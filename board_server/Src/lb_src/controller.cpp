@@ -17,6 +17,8 @@
 #define KWKEEPBELOW 65
 #define KWMINTOSTART 50
 
+#define UARTDEBUG
+
 #define seconds_to_ticks(x) x * 1
 #define ticks_to_seconds(x)  x
 
@@ -269,6 +271,12 @@ AUTOMERRORS Controller::brew(){
 }
 
 void Controller::tick(){
+#ifdef UARTDEBUG
+	compile_response();
+	respond(0,response_message_buffer);
+
+#endif
+
     switch(state){
         case IDLE:
         	hal->set_blink_mode(0);

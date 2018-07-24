@@ -50,7 +50,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-
+#include "globals.h"
 /* USER CODE BEGIN Includes */     
 
 #include "stm32f4xx_nucleo.h"
@@ -58,6 +58,7 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
 
 /* USER CODE END Includes */
 
@@ -113,14 +114,18 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 2048);
+#ifndef DISABLEBLUETOOTH
+  osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
+#endif
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
   osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
 
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+#ifndef DISABLEBLUETOOTH
+  osThreadCreate(osThread(bluetooth_task), NULL);
+#endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
   osThreadCreate(osThread(UART_read_task__), NULL);
 
@@ -134,7 +139,7 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
+void bluetooth_task(void const * argument)
 {
 
   /* init code for STMicroelectronics_BlueNRG-MS_1_0_0 */
