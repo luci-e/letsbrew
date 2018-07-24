@@ -117,7 +117,7 @@ extern "C"{
   */
 
 int dummy(char * ptr){
-
+    return 0;
 }
 
 int main(void)
@@ -148,7 +148,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   MX_USART2_UART_Init();
-#ifdef DISABLEBLUETOOTH
+#if DISABLEBLUETOOTH
   HAL *hal = new HAL(write_on_uart2, dummy);
 #else
   HAL *hal= new HAL(write_on_uart2, lb_transmit_data);

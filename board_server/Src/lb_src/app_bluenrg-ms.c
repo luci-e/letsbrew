@@ -89,8 +89,6 @@ void MX_BlueNRG_MS_Init(void)
 
 	  PRINTF("HWver %d\nFWver %d\n", hwVersion, fwVersion);
 
-	  HAL_UART_Transmit(&huart2, "Hello there\n", 12, 5000);
-
 	  hci_init( lb_user_notify, NULL );
 
 	  /* get the BlueNRG HW and FW versions */

@@ -53,6 +53,8 @@
 #include "globals.h"
 /* USER CODE BEGIN Includes */     
 
+#include "app_bluenrg-ms.h"
+
 #include "stm32f4xx_nucleo.h"
 
 #ifdef __cplusplus
