@@ -34,7 +34,7 @@ using namespace std;
 	 * @return
 	 */
 	int lb_parse_header( const string &lb_header, lb_request_header &result ) {
-		static regex header_reg[4] = {
+		static regex header_reg[5] = {
 			regex( "^ *ID *: *(\\d{1,10}) *"),
 			regex( "^ *USR *: *(\\d{1,10}) *" ),
 			regex( "^ *TIME *: *(\\d{1,10}) *" ),

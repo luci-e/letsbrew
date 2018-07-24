@@ -84,6 +84,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 /* USER CODE BEGIN FunctionPrototypes */
 
 void LedBlinkTask(void const * argument);
+void bluetooth_task( void const * argument );
 void UART_read_task(void const * argument);
 
 extern void parsing_callback( int channel, char new_char );
@@ -114,7 +115,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-#ifndef DISABLEBLUETOOTH
+#if !DISABLEBLUETOOTH
   osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
 #endif
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
@@ -123,7 +124,7 @@ void MX_FREERTOS_Init(void) {
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
-#ifndef DISABLEBLUETOOTH
+#if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
@@ -173,7 +174,7 @@ void UART_read_task(void const * argument)
   {
 	  uint8_t c;
 	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT);
+	  HAL_UART_Receive(&huart2, &c, (uint16_t) 1, (uint32_t) UARTRCVTIMEOUT);
 	  parsing_callback( 0, c );
   }
 }
