@@ -49,7 +49,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
-
+#include "string.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */

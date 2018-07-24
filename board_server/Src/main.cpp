@@ -117,7 +117,7 @@ extern "C"{
   */
 
 int dummy(char * ptr){
-
+    return 0;
 }
 
 int main(void)

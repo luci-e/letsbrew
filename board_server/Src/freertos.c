@@ -53,6 +53,8 @@
 #include "globals.h"
 /* USER CODE BEGIN Includes */     
 
+#include "app_bluenrg-ms.h"
+
 #include "stm32f4xx_nucleo.h"
 
 #ifdef __cplusplus
@@ -78,7 +80,6 @@ extern UART_HandleTypeDef huart2;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
-void StartDefaultTask(void const * argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
@@ -124,6 +125,7 @@ void MX_FREERTOS_Init(void) {
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
+
 #if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif

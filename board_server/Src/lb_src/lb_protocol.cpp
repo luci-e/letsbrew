@@ -121,7 +121,7 @@ using namespace std;
 	* @return
 	*/
 	int lb_parse_body( const string &lb_body, lb_request &result ) {
-		static regex field_reg( "^ *([A-z_]+) *: *([A-z\\d]+) *" );
+		static regex field_reg( "^ *([A-z_\\d]+) *: *([A-z\\d]+) *" );
 
 		stringstream ss( lb_body );
 
