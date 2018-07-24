@@ -86,6 +86,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 void LedBlinkTask(void const * argument);
 void UART_read_task(void const * argument);
+void bluetooth_task(void const * argument);
 
 extern void parsing_callback( int channel, char new_char );
 extern void controller_callback (TimerHandle_t xTimer);
@@ -115,7 +116,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-#ifndef DISABLEBLUETOOTH
+#if !DISABLEBLUETOOTH
   osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
 #endif
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
@@ -124,9 +125,9 @@ void MX_FREERTOS_Init(void) {
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
 
-#if !DISABLEBLUETOOTH
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
-#ifndef DISABLEBLUETOOTH
+
+#if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);

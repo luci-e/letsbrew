@@ -1,6 +1,3 @@
-
-
 #define MESSAGEBUFSIZE 512
-
 #define DISABLEBLUETOOTH 0
 
