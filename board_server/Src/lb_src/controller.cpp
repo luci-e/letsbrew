@@ -109,6 +109,7 @@ void Controller::parse(unsigned int channel,char new_character){
 		return;
 	}
 
+	//TODO
 	channels[channel].push_char(new_character);
 	if(channels[channel].message_complete){
 		letsbrew::lb_request lbr;
