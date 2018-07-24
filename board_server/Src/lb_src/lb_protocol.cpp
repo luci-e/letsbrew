@@ -36,9 +36,10 @@ using namespace std;
 	int lb_parse_header( const string &lb_header, lb_request_header &result ) {
 		static regex header_reg[4] = {
 			regex( "^ *ID *: *(\\d{1,10}) *"),
-			regex( "^ *CMD *: *([A-z]+) *" ),
 			regex( "^ *USR *: *(\\d{1,10}) *" ),
-			regex( "^ *TIME *: *(\\d{1,10}) *" )
+			regex( "^ *TIME *: *(\\d{1,10}) *" ),
+            regex( "^ *CMD *: *([A-z]+) *" ),
+            regex( "^")
 		};
 		
 		stringstream ss( lb_header );
@@ -49,7 +50,6 @@ using namespace std;
 		string value;
 
 		while ( getline( ss, line ) ) {
-
 			if ( regex_search( line, matches, header_reg[field] ) ) {
 				value = matches[1];
 
@@ -60,34 +60,41 @@ using namespace std;
 						break;
 					}
 
+
 					case 1:
-					{
-						if ( value == "BREW" ) {
-							result.CMD = BREW;
-						} else if ( value == "CANCEL" ) {
-							result.CMD = CANCEL;
-						} else if ( value == "STATE" ) {
-							result.CMD = STATE;
-						} else if ( value == "KEEPWARM" ) {
-							result.CMD = KEEPWARM;
-						} else {
-							return PARSE_BAD_HEADER;
-						}
-
-						break;
-					}
-
-					case 2:
 					{
 						result.usr = stoi( value );
 						break;
 					}
 
-					case 3:
+					case 2:
 					{
 						result.time = stoi( value );
 						break;
 					}
+
+                    case 3:
+                    {
+                        if ( value == "BREW" ) {
+                            result.CMD = BREW;
+                        } else if ( value == "CANCEL" ) {
+                            result.CMD = CANCEL;
+                        } else if ( value == "STATE" ) {
+                            result.CMD = STATE;
+                        } else if ( value == "KEEPWARM" ) {
+                            result.CMD = KEEPWARM;
+                        } else {
+                            return PARSE_BAD_HEADER;
+                        }
+
+                        break;
+                    }
+
+                    case 4:
+                    {
+                        // Hello there
+                        break;
+                    }
 
 					default:
 					{
