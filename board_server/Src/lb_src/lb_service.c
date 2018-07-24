@@ -122,7 +122,7 @@ void lb_make_connection(void)
  * @retval None
  */
 void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no) {
-    PRINTF("%s", data_buffer);
+    PRINTF("%s\n", data_buffer);
   for( uint8_t i = 0; i < bytes_no; i++){
       lb_controller_receive_cb(1, data_buffer[i]);
   }

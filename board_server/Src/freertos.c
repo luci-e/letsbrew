@@ -125,13 +125,11 @@ void MX_FREERTOS_Init(void) {
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
 
-  osTimerStart(osTimer(Controller_Timer),TIMER_MS);
 
 #if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
-  osThreadCreate(osThread(UART_read_task__), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -177,7 +175,7 @@ void UART_read_task(void const * argument)
   {
 	  uint8_t c='\0';
 	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  if(HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT)==HAL_OK){
+	  if(HAL_UART_Receive(&huart2, &c, (uint16_t) 1, UARTRCVTIMEOUT)==HAL_OK){
 		  parsing_callback( 0, c );
 	  }
 	  osDelay(1);
