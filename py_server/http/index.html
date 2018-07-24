@@ -20,47 +20,88 @@
         </div>
 
         <div class="center_tab" id="lb_web_form">
-            Make a request:<br>
-            <form id="teaform_web" action="index.html">
+            Make a request<br><hr>            
+            <form class="teaform_grid" id="teaform_web" action="index.html">
 
-                <input type="text" value="goodnigh" readonly>
+                <div class="teaform_grid_element" style="grid-area:user_info;">
+                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4 >USER INFO:</h4></div>
+                    <div style="grid-area : 2 / 1 / row2-end / col1-end;">USER ID:</div><input style="grid-area : 2 / 2 / row2-end / col2-end;" type="number" id="user_id_web" value="1" readonly>
+                    <div style="grid-area : 3 / 1 / row3-end / col1-end;">REQUEST ID :</div><input style="grid-area : 3 / 2 / row3-end / col2-end;" type="number" id="request_id_web" value="2" readonly>
+                </div>
 
-                CMD:
-                <select name="CMD" id="cmd_selector_web">
-                    <option value="BREW">BREW</option>
-                    <option value="STATE">STATE</option>
-                </select><br>
+                <div class="teaform_flex_element" style="grid-area:cmd;">
+                    <h4>CMD:</h4>
+                    <select name="CMD" id="cmd_selector_web">
+                        <option value="BREW">BREW</option>
+                        <option value="KEEPWARM">KEEPWARM</option>
+                        <option value="STATE">STATE</option>
+                    </select>
+                </div>
 
-                OPTIONS:
-                <div name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_web">
-                    Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
-                    Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
-                </div><br>
+                <div class="teaform_grid_element" style="grid-area:options;">
 
-                <button onclick="send_data_web('#teaform_web')">Let's brew</button>
+                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4 >OPTIONS: </h4></div>
+
+                    <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end;" name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_web">
+                        <div style="grid-area : 1 / 1 / row1-end / col1-end;">Water temperature :</div><input style="grid-area : 1 / 2 / row1-end / col2-end;" type="number" name="H2O_TEMP" min="0" max="100">
+                        <div style="grid-area : 2 / 1 / row2-end / col1-end;">Water amount :</div><input style="grid-area : 2 / 2 / row2-end / col2-end;" type="number" name="H2O_AMOUNT" min="0" max="1000">
+                    </div>
+
+
+                    <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end; display:none;" name="cmd_param" data-cmd_param="KEEPWARM_params" id="KEEPWARM_params_web">
+                        <div style="grid-area : 1 / 1 / row1-end / col2-end;"> Duration : </div> <input style="grid-area : 1 / 2 / row1-end / col2-end;" disabled type="number" name="DURATION" min="0" max="4294967295"><br>
+                    </div>
+
+                </div>
+
+                <div class="teaform_grid_element" style="grid-area:sender;">
+                    <button onclick="send_data_web('#teaform_web')">Let's brew</button>
+                </div>
+
             </form>
         </div>
 
         <div class="center_tab" id="lb_bt_form" style="display:none;">
-            Make a blerequest:<br>
-            <button id="find_brewy"> Find me boiler </button>
-            <form id="teaform_bt" action="index.html">
+            Make a request<br><hr>            
+            <form class="teaform_grid" id="teaform_web" action="index.html">
 
-                <input type="text" value="can't touch this" readonly>
+                <button id="find_brewy"> Find me boiler </button>
 
-                CMD:
-                <select name="CMD" id="cmd_selector_bt">
-                    <option value="BREW">BREW</option>
-                    <option value="STATE">STATE</option>
-                </select><br>
+                <div class="teaform_grid_element" style="grid-area:user_info;">
+                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4 >USER INFO:</h4></div>
+                    <div style="grid-area : 2 / 1 / row2-end / col1-end;">USER ID:</div><input style="grid-area : 2 / 2 / row2-end / col2-end;" type="number" id="user_id_bt" value="1" readonly>
+                    <div style="grid-area : 3 / 1 / row3-end / col1-end;">REQUEST ID :</div><input style="grid-area : 3 / 2 / row3-end / col2-end;" type="number" id="request_id_bt" value="2" readonly>
+                </div>
 
-                OPTIONS:
-                <div name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_bt">
-                    Water temperature : <input type="range" name="H2O_TEMP" min="0" max="100"><br>
-                    Water amount : <input type="range" name="H2O_AMOUNT" min="0" max="1000"><br>
-                </div><br>
+                <div class="teaform_flex_element" style="grid-area:cmd;">
+                    <h4>CMD:</h4>
+                    <select name="CMD" id="cmd_selector_bt">
+                        <option value="BREW">BREW</option>
+                        <option value="KEEPWARM">KEEPWARM</option>
+                        <option value="STATE">STATE</option>
+                    </select>
+                </div>
 
-                <button onclick="send_data_bt('#teaform_bt')">Let's brew</button>
+                <div class="teaform_grid_element" style="grid-area:options;">
+                
+                    <div style="grid-area : 1 / 1 / row1-end / col2-end;"><h4 >OPTIONS: </h4></div>
+
+                    <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end;" name="cmd_param" data-cmd_param="BREW_params" id="BREW_params_bt">
+                        <div style="grid-area : 1 / 1 / row1-end / col1-end;">Water temperature :</div><input style="grid-area : 1 / 2 / row1-end / col2-end;" type="number" name="H2O_TEMP" min="0" max="100">
+                        <div style="grid-area : 2 / 1 / row2-end / col1-end;">Water amount :</div><input style="grid-area : 2 / 2 / row2-end / col2-end;" type="number" name="H2O_AMOUNT" min="0" max="1000">
+                    </div>
+
+
+                    <div class="teaform_grid_options" style="grid-area : 2 / 1 / row2-end / col2-end; display:none;" name="cmd_param" data-cmd_param="KEEPWARM_params" id="KEEPWARM_params_bt">
+                        <div style="grid-area : 1 / 1 / row1-end / col2-end;"> Duration : </div> <input style="grid-area : 1 / 2 / row1-end / col2-end;" disabled type="number" name="DURATION" min="0" max="4294967295"><br>
+                    </div>
+
+                </div>
+
+                <div class="teaform_grid_element" style="grid-area:sender;">
+                    <button onclick="send_data_bt('#teaform_bt')">Let's brew</button>
+                </div>
+
             </form>
         </div>
 

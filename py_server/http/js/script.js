@@ -114,11 +114,15 @@ function init_script(){
 	$('select[name="CMD"]').on('change', ( event ) => {
 		var jq_target =  $(event.target);
 		var selected = jq_target.find("option:selected").text();
-		var form_id = '#' + jq_target.parent('form').prop("id");
+		var form_id = '#' + jq_target.parents('form').prop("id");
 		
 		switch( selected ){
 			case 'BREW':
 				var param_id = '#' + $(form_id).find('div[data-cmd_param="BREW_params"]').prop("id");
+				show_cmd_params(form_id, param_id)
+				break;
+			case 'KEEPWARM':
+				var param_id = '#' + $(form_id).find('div[data-cmd_param="KEEPWARM_params"]').prop("id");
 				show_cmd_params(form_id, param_id)
 				break;
 			case 'STATE':
