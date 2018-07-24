@@ -8,19 +8,26 @@ import time
 import threading
 import sys
 
-SERIAL_PORT = '\\.\\COM4' + sys.argv[1]
+SERIAL_PORT = ""
 BAUDRATE = 115200
 PORT = 80
-ROOT_DIRECTORY = './httpd'
+ROOT_DIRECTORY = './http'
 
-serial_stream = serial.Serial(port=SERIAL_PORT, baudrate=BAUDRATE, parity=serial.PARITY_NONE,
-                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=0)
+serial_stream = None
 serial_lock = threading.Lock()
+
+def serial_init():
+        try:
+            SERIAL_PORT = '\\.\\COM' + sys.argv[1]
+            serial_stream = serial.Serial(port=SERIAL_PORT, baudrate=BAUDRATE, parity=serial.PARITY_NONE,
+                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=0)
+        except Exception:
+            print("Could not open serial_stream")
 
 
 def sync_serial_read():
     serial_lock.acquire()
-    print( serial_stream.read(15).decode(encoding='ascii') )
+    print( serial_stream.readline().decode(encoding='ascii') )
     serial_lock.release()
 
 def sync_serial_write( data ):
@@ -54,12 +61,15 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
             "HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + json.dumps(test_data))
         )
 
-        sync_serial_write( "hello there")
-        sync_serial_read()
+        if( serial_stream ):
+            sync_serial_write( "hello there")
+            sync_serial_read()
 
 
 def main():
     os.chdir(ROOT_DIRECTORY)
+    serial_init()
+
     with socketserver.TCPServer(("", PORT), lb_request_handler) as httpd:
         print("serving at port", PORT)
         httpd.serve_forever()
