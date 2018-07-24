@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <string>
-
+#include "globals.h"
 using namespace std;
 
 enum STREAM_CODES{
@@ -27,11 +27,12 @@ class stream_reader{
 
 
 public:
-	bool message_complete;
-	string message_buffer;
+	bool message_complete=false;
+	//string message_buffer;
+	char message_buffer[MESSAGEBUFSIZE];
 	stream_reader( size_t max_message_size ){
-		message_buffer.resize( max_message_size );
-		max_length = max_message_size;
+		//message_buffer.resize( max_message_size );
+		max_length = MESSAGEBUFSIZE;
 		current_length = 0;
 	}
 

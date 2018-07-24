@@ -171,10 +171,11 @@ void UART_read_task(void const * argument)
 {
   while(1)
   {
-	  uint8_t c;
+	  uint8_t c='\0';
 	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT);
-	  parsing_callback( 0, c );
+	  if(HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT)==HAL_OK){
+		  parsing_callback( 0, c );
+	  }
   }
 }
      

@@ -149,11 +149,11 @@ int main(void)
 
   MX_USART2_UART_Init();
 #ifdef DISABLEBLUETOOTH
-  HAL hal(write_on_uart2, dummy);
+  HAL *hal = new HAL(write_on_uart2, dummy);
 #else
-  HAL hal(write_on_uart2, lb_transmit_data);
+  HAL *hal= new HAL(write_on_uart2, lb_transmit_data);
 #endif
-  c = new Controller(&hal);
+  c = new Controller(hal);
 
   // Set the callback for the bluetooth read
   set_controller_cb( parsing_callback);
