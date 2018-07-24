@@ -80,7 +80,6 @@ extern UART_HandleTypeDef huart2;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
-void StartDefaultTask(void const * argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
@@ -178,6 +177,7 @@ void UART_read_task(void const * argument)
 	  if(HAL_UART_Receive(&huart2,&c,1,UARTRCVTIMEOUT)==HAL_OK){
 		  parsing_callback( 0, c );
 	  }
+	  osDelay(1);
   }
 }
      
