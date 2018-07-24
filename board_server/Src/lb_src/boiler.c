@@ -73,7 +73,7 @@ int read_temperature(){
 	ntc_resistance = fixed_resistor_value * (1 / (inverse_ratio - 1));
 
 #endif
-	return ntc_resistance_to_temperature(ntc_resistance);
+	return ntc_resistance_to_temperature_linear(ntc_resistance);
 }
 
 extern unsigned int blink_mode;

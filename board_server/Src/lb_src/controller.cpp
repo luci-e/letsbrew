@@ -8,7 +8,7 @@
 #include <cstdio>
 #include "lb_protocol.hpp"
 #include "lb_service.h"
-
+#include <math.h>
 
 #define TIMETOBREW 60
 #define BREWSTARTTEMP 80
@@ -18,6 +18,7 @@
 #define KWMINTOSTART 50
 
 #define seconds_to_ticks(x) x * 1
+#define ticks_to_seconds(x)  x
 
 using namespace std;
 
@@ -33,24 +34,24 @@ Controller::Controller(HAL * usehal){
     mutex = osMutexCreate (osMutex(mutex));
 }
 
-char * Controller::last_err_to_str(){
+const char * Controller::last_err_to_str(){
 
 	return err_to_str(last_error);
 
 }
 
-char * Controller::err_to_str(AUTOMERRORS err){
+const char * Controller::err_to_str(AUTOMERRORS err){
     switch(err){
         case NOERROR:
             return "OK";
         case BREWINPROGRESS:
             return "Brewing already in progress";
         case BREWTEMPERATURETOOHIGH:
-            return "Unable to start brewing, heater too hot!";
+            return "Unable to start brewing - heater too hot!";
         case HEATERERROR:
             return "Heater error";
         case KEEPWARMTOOCOLD:
-            return "Unable to keep-warm, too cold";
+            return "Unable to keep-warm - too cold";
         case KEEPWARMINPROGRESS:
             return "Keep-warm already in progress";
         default:
@@ -82,7 +83,18 @@ int Controller::error_to_code(AUTOMERRORS err){
 }
 
 void Controller::compile_response(){
-	snprintf( response_message_buffer, BUFSIZE, "%d %s, %s", error_to_code(last_error), last_err_to_str(),state_to_str());
+	snprintf( response_message_buffer, BUFSIZE, "%d %s, %s\n", error_to_code(last_error), last_err_to_str(),state_to_str());
+}
+
+inline float Controller::seconds_to_watts(float seconds){
+	return seconds * 1000.0/3600.0;
+}
+
+void Controller::compile_detailed_response(){
+	snprintf( response_message_buffer, BUFSIZE,\
+			"%d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used\n",\
+			error_to_code(last_error), last_err_to_str(),state_to_str(),\
+			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)) );
 }
 
 void Controller::parse(unsigned int channel,char new_character){
@@ -90,7 +102,6 @@ void Controller::parse(unsigned int channel,char new_character){
 	if(channel>=NUMCHANNELS){
 		return;
 	}
-	char * retMesg;
 
 	channels[channel].push_char(new_character);
 	if(channels[channel].message_complete){
@@ -101,29 +112,26 @@ void Controller::parse(unsigned int channel,char new_character){
 			switch(lbr.request_header.CMD){
 			case BREW:
 			{
-					auto er = brew();
-					retMesg = err_to_str(er);
+					//auto er = brew();
 					compile_response();
 					break;
 			}
 			case CANCEL:
 			{
 					abort();
-					retMesg = last_err_to_str();
 					compile_response();
 					break;
 			}
 			case(STATE):
 			{
-					retMesg = last_err_to_str();
-					compile_response();
+					compile_detailed_response();
 					break;
 			}
 			case(KEEPWARM):
 			{
 					unsigned int duration = stoi(lbr.request_params["DURATION"]);
-					auto er=keep_warm(duration);
-					retMesg = err_to_str(er);
+					//auto er=
+					keep_warm(duration);
 					compile_response();
 					break;
 			}
@@ -151,7 +159,7 @@ void Controller::respond(unsigned int channel, char * msg){
 
 }
 
-char * Controller::state_to_str(){
+const char * Controller::state_to_str(){
     switch(state){
         case IDLE:
             return "IDLE";
@@ -228,6 +236,7 @@ AUTOMERRORS Controller::brew(){
             }
             else{
                 state =BREWPREHEATING;
+                brews+=1;
                 last_error =NOERROR;
             }
             break;
@@ -259,6 +268,7 @@ void Controller::tick(){
             break;
         case BREWPREHEATING:
         	hal->set_blink_mode(1);
+        	heater_on_seconds += ticks_to_seconds(1);
             if(hal->get_temperature() > BREWSTARTTEMP){
                 state = BREWBREWING;
                 hal->start_heater();
@@ -267,6 +277,7 @@ void Controller::tick(){
             break;
         case BREWBREWING:
         	hal->set_blink_mode(1);
+        	heater_on_seconds += ticks_to_seconds(1);
             ticks_to_go-=1;
             if(ticks_to_go == 0){
                 last_error = NOERROR;
@@ -277,6 +288,8 @@ void Controller::tick(){
         case KEEPWARMWARMING:
         	hal->set_blink_mode(1);
             ticks_to_go-=1;
+            seconds_in_keepwarm += ticks_to_seconds(1);
+            heater_on_seconds += ticks_to_seconds(1);
             if(ticks_to_go == 0){
                 last_error = NOERROR;
                 hal->stop_heater();
@@ -291,6 +304,7 @@ void Controller::tick(){
         case KEEPWARMIDLE:
         	hal->set_blink_mode(1);
             ticks_to_go-=1;
+            seconds_in_keepwarm += ticks_to_seconds(1);
             if(ticks_to_go == 0){
                 last_error = NOERROR;
                 hal->stop_heater();
