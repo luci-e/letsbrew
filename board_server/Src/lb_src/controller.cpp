@@ -41,45 +41,49 @@ const char * Controller::last_err_to_str(){
 }
 
 const char * Controller::err_to_str(AUTOMERRORS err){
-    switch(err){
-        case NOERROR:
-            return "OK";
-        case BREWINPROGRESS:
-            return "Brewing already in progress";
-        case BREWTEMPERATURETOOHIGH:
-            return "Unable to start brewing - heater too hot!";
-        case HEATERERROR:
-            return "Heater error";
-        case KEEPWARMTOOCOLD:
-            return "Unable to keep-warm - too cold";
-        case KEEPWARMINPROGRESS:
-            return "Keep-warm already in progress";
-        default:
-        	return "";
-        	break;
-
-    }
-}
-int Controller::error_to_code(AUTOMERRORS err){
-
 	switch(err){
-	        case NOERROR:
-	            return 200;
-	        case BREWINPROGRESS:
-	            return 409;
-	        case BREWTEMPERATURETOOHIGH:
-	            return 410;
-	        case HEATERERROR:
-	            return 500;
-	        case KEEPWARMTOOCOLD:
-	            return 417;
-	        case KEEPWARMINPROGRESS:
-	            return 421;
-	        default:
-	        	return 501;
-	        	break;
+	case NOERROR:
+		return "OK";
+	case BREWINPROGRESS:
+		return "Brewing already in progress";
+	case BREWTEMPERATURETOOHIGH:
+		return "Unable to start brewing - heater too hot!";
+	case HEATERERROR:
+		return "Heater error";
+	case KEEPWARMTOOCOLD:
+		return "Unable to keep-warm - too cold";
+	case KEEPWARMINPROGRESS:
+		return "Keep-warm already in progress";
+	case BADREQUEST:
+			return "Bad request";
+	default:
+		return "Unknown error";
+		break;
 
-	    }
+	}
+}
+int Controller::error_to_code(AUTOMERRORS err) {
+
+	switch (err) {
+	case NOERROR:
+		return 200;
+	case BREWINPROGRESS:
+		return 409;
+	case BADREQUEST:
+		return 400;
+	case BREWTEMPERATURETOOHIGH:
+		return 410;
+	case HEATERERROR:
+		return 500;
+	case KEEPWARMTOOCOLD:
+		return 417;
+	case KEEPWARMINPROGRESS:
+		return 421;
+	default:
+		return 501;
+		break;
+
+	}
 }
 
 void Controller::compile_response(){
@@ -137,6 +141,10 @@ void Controller::parse(unsigned int channel,char new_character){
 			}
 
 			}
+		}
+		else{
+			last_error = BADREQUEST;
+			compile_response();
 		}
 		respond(channel,response_message_buffer);
 		osMutexRelease(mutex);
