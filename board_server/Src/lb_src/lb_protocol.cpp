@@ -148,10 +148,6 @@ using namespace std;
 			case BREW:
 			{
 				/* Check time present h20 temp limit check H20 amount */
-				uint32_t time;
-				uint32_t temp;
-				uint32_t amount;
-
 				it = request.request_params.find( "EXEC_TIME" );
 				if ( it == mapref.end() ) {
 					return PARSE_BAD_BODY;
@@ -184,8 +180,6 @@ using namespace std;
 
 			case KEEPWARM:
 			{
-				uint32_t duration;
-
 				it = request.request_params.find( "DURATION" );
 				if ( it == mapref.end() ) {
 					return PARSE_BAD_BODY;

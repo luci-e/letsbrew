@@ -123,6 +123,8 @@ void MX_FREERTOS_Init(void) {
 
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
+
+#if !DISABLEBLUETOOTH
   osTimerStart(osTimer(Controller_Timer),TIMER_MS);
 #ifndef DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
