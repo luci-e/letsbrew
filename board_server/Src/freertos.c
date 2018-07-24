@@ -89,7 +89,7 @@ void UART_read_task(void const * argument);
 void bluetooth_task(void const * argument);
 
 extern void parsing_callback( int channel, char new_char );
-extern void controller_callback (TimerHandle_t xTimer);
+extern void controller_callback (void const *argument);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -125,11 +125,18 @@ void MX_FREERTOS_Init(void) {
   osTimerDef(Controller_Timer, controller_callback);
   osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
 
+  osStatus timer_status;
+
+  timer_status = osTimerStart(osTimer(Controller_Timer),TIMER_MS);
+  if( timer_status != osOK ){
+      while(1){};
+  }
 
 #if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
+  osThreadCreate(osThread(UART_read_task__), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

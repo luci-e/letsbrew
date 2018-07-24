@@ -88,7 +88,7 @@ Controller * c;
 void SystemClock_Config(void);
 
 extern "C"{
-	void controller_callback(TimerHandle_t xTimer){
+	void controller_callback(const void * argument){
 	  c->tick();
 	}
 
