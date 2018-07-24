@@ -52,7 +52,7 @@ var letsbrew;
 // Sends the form data and reads the result from the server asynchronously
 function send_data_web( form_id ) {
 	// Put the form into a nice JSON
-	command = stringify_form( form_id );
+	command = build_command( form_id );
 
 	$( form_id ).on( 'submit', function( event ){ 
 		event.preventDefault();
@@ -75,7 +75,7 @@ function send_data_web( form_id ) {
 // Sends the form data and reads the result from the bt asynchronously
 function send_data_bt( form_id ) {
 	// Put the form into a nice JSON
-	command = stringify_form( form_id );
+	command = build_command( form_id );
 
 	$( form_id ).on( 'submit', function( event ){ 
 		event.preventDefault();
@@ -86,14 +86,33 @@ function send_data_bt( form_id ) {
 	return false;
 }
 
-function stringify_form( form_id ){
+function build_command( form_id ){
 	var cmd_data = {};
-	var fields = $(form_id).serializeArray();
-	$.each( fields, function( i, pair ){
-		cmd_data[pair.name] = ( isNaN( Number(pair.value) ) ? pair.value : Number(pair.value));
-	});
+// 	var fields = $(form_id).serializeArray();
+// 	$.each( fields, function( i, pair ){
+// 		cmd_data[pair.name] = ( isNaN( Number(pair.value) ) ? pair.value : Number(pair.value));
+// 	});
 
-	return JSON.stringify(cmd_data, null, 2);
+
+	cmd_data["ID"] = parseInt($(form_id).find('[id^="request_id"]').val());
+	cmd_data["USR"] = parseInt($(form_id).find('[id^="user_id"]').val());
+	cmd_data["TIME"] = Math.floor(Date.now() / 1000);
+	cmd_data["CMD"] = $(form_id).find('[name="CMD"]>:selected').text();
+
+	switch($(form_id).find('[name="CMD"]>:selected').text()){
+		case 'BREW':
+			cmd_data['EXEC_TIME'] = 0;
+			cmd_data['H2O_TEMP'] = parseInt($(form_id).find('[name="H2O_TEMP"]').val());
+			cmd_data['H2O_AMOUNT'] = parseInt($(form_id).find('[name="H2O_AMOUNT"]').val());
+			break;
+		case 'KEEPWARM':
+			cmd_data['DURATION'] = parseInt($(form_id).find('[name="DURATION"]').val());
+			break;
+		case 'STATE':
+			break;
+	}
+
+ 	return JSON.stringify(cmd_data, null, 2);
 }
 
 // Show the divs in the given form with the given id, hide the others
@@ -158,5 +177,18 @@ function init_script(){
 	  })
 	  .catch(error => { console.log(error) });
 	});
+
+
+	// Set the user ids
+	$('#user_id_web').val( Math.floor( Math.random() * 4294967295 ));
+	$('#user_id_bt').val( Math.floor( Math.random() * 4294967295 ));
+
+	// Set the initial requests ids
+	$('#request_id_web').val( Math.floor( Math.random() * 4294967295 ));
+	$('#request_id_bt').val( Math.floor( Math.random() * 4294967295 ));
+
+	// Attach the handler to the let's brew button to generate a new request id 
+	$('#letsbrew_button_web').on('click', () => $('#request_id_web').val( Math.floor( Math.random() * 4294967295 )) );
+	$('#letsbrew_button_bt').on('click', () => $('#request_id_bt').val( Math.floor( Math.random() * 4294967295 )) );
 
 }

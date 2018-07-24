@@ -45,6 +45,15 @@ body{
 	margin: 30px 0px;
 }
 
+.center_tab{
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+	align-content: space-between;
+
+	background-color: #ebf3ef;
+}
+
 .teaform_grid{
 	display : grid;
 	grid-template-columns: auto;
@@ -54,7 +63,6 @@ body{
 	"cmd cmd cmd cmd"
 	"options options options options"
 	"sender sender sender sender";
-	grid-column-gap: unset;
   	grid-row-gap: 1em;
 }
 
@@ -66,63 +74,18 @@ body{
   	min-height: 30mm;
 }
 
-.teaform_grid_options{
-	display: grid;
-	grid-template-columns: auto auto;
-	grid-template-rows: auto;
-  	grid-row-gap: 1em;
-}
-
 .teaform_flex_element{
 	display:flex;
 	flex-direction:column;
 	align-items: baseline;
 }
 
-.options_box{
-	display : grid;
-}
 
-.info_box{
-	position: relative;
-	width: 100%;
-	min-height: 10vh;
-	
-	background-color: #ebf3ef;
-}
-
-.info_box h1{
-	position: relative;
-	width: 100%;
-	height: 30px;
-
-	font-variant: small-caps;
-	font-size: x-large;
-	font-weight: bold;
-
-	border-style: solid;
-	border-color: black;
-	border-width: 0px 0px 0px 10px;
-
-	padding-left: 20px;
-}
-
-.info_box .info_text{	
-	position: relative;
-	width: 100%;
-	min-height: 50px;
-
-	border-style: solid;
-	border-color: black;
-	border-width: 1px 0px 0px 00px;
-
-	padding-top: 10px;
-}
-
-tr:first-child{
-	border-style: solid;
-	border-color: black;
-	border-width: 0px 0px 1px 0px;
+.teaform_grid_options{
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-template-rows: auto;
+  	grid-row-gap: 1em;
 }
 
 
