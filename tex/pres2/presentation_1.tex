@@ -1,0 +1,297 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 \ttp://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt]{beamer}
+\usepackage[absolute,overlay]{textpos}
+% small logo down the page
+%\logo{\makebox[1\paperwidth]{\includegraphics[width=.5cm,keepaspectratio]{images/sapienza-logo.png}}}
+
+%\fontsize{12pt}{10}\selectfont
+
+
+\usepackage{minted}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows,%
+    shapes,positioning}
+
+
+
+\definecolor{color1}{HTML}{001000} % Color of the article title and sections
+\definecolor{color2}{HTML}{822434} % Color of the boxes behind the abstract and headings
+\definecolor{color4}{HTML}{006778} % Color of the boxes behind the abstract and headings
+\definecolor{bla}{HTML}{000000} % Color of the boxes behind the abstract and headings
+\definecolor{color3}{HTML}{202020} % Background color
+    
+%\setbeamertemplate{background canvas}{
+
+%\begin{tikzpicture}
+%\node[opacity=.1]{
+%\includegraphics[width=2in , height=3in, keepaspectratio]%{images/sapienza-logo.png}};
+%\end{tikzpicture}
+%}
+ % only for the image: http://ctan.org/pkg/mwe
+%     \setbeamertemplate{background}{\includegraphics[width=\paperwidth]{images/sapienza-logo.png}}
+%{\usebackgroundtemplate{
+%       \begin{picture}
+%            \includegraphics[width=\paperwidth]{images/sapienza-logo.png}
+%       \end{picture}
+%}%
+
+
+% watermark logo , you can choose width and position in a pretty accurate way
+%"anchor" and current page."x" play the game : north , south , etc.
+\setbeamertemplate{background}{\tikz[overlay,remember picture, anchor=south]\node[opacity=.15]at ([yshift=1.5cm]current page.south){\includegraphics[width=3cm]{images/sapienza-logo.png}};}
+
+
+\definecolor{color1}{HTML}{001000} % Color of the article title and subsections
+\definecolor{color2}{HTML}{822434} % Color of the boxes behind the abstract and headings
+\definecolor{color3}{HTML}{202020} % Background color
+
+\definecolor{baseColor}{HTML}{822434} % Color of the boxes behind the abstract and headings
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+
+%   \usetheme{Frankfurt}
+%  \usetheme{Ilmenau}
+%  \usetheme{JuanLesPins}
+%  \usetheme{Luebeck}
+%   \usetheme{PaloAlto}
+
+\usetheme{Rochester}
+
+
+
+
+
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+
+% \usecolortheme{crane}
+%\usecolortheme{orchid}
+%   \usecolortheme{rose}
+%  \usecolortheme{whale}
+
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+
+ \setbeamercolor*{palette primary}{use=structure,fg=color2,bg=color2!110 }
+ \setbeamercolor*{palette secondary}{use=structure,fg=color3,bg=color3}
+ \setbeamercolor{title}{fg=white,bg=baseColor}
+
+
+}
+
+\usepackage{tabularx}
+\usepackage{pdfpages}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{scrextend}
+\changefontsizes{14pt}
+
+\usepackage{tikz}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title[Short title]{IoT} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{} % Your name
+\institute[Sapienza] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+La Sapienza \\ % Your institution for the title page
+\medskip
+\textit{studenti.uniroma1.it} % Your email address
+
+}
+\date{\today} % Date, can be changed to a custom date
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%   New style here
+
+\mode<presentation>{\usetheme{AnnArbor}}
+\usecolortheme{whale}
+
+\setbeamercolor{frametitle}{parent=subsubsection in head/foot}
+\setbeamercolor{frametitle right}{parent=subsection in head/foot}
+
+\makeatletter
+\pgfdeclarehorizontalshading[frametitle.bg,frametitle right.bg]{beamer@frametitleshade}{\paperheight}{%
+    color(0pt)=(frametitle.bg);
+    color(\paperwidth)=(frametitle right.bg)}
+
+\AtBeginDocument{
+    \pgfdeclareverticalshading{beamer@topshade}{\paperwidth}{%
+        color(0pt)=(bg);
+        color(4pt)=(black!50!bg)}
+}
+
+\addtobeamertemplate{headline}
+{}
+{%
+    \vskip-0.2pt
+    \pgfuseshading{beamer@topshade}
+    \vskip-2pt
+}
+
+
+\setbeamertemplate{frametitle}
+{%
+    \nointerlineskip%
+    \vskip-2pt%
+    \hbox{\leavevmode
+        \advance\beamer@leftmargin by -12bp%
+        \advance\beamer@rightmargin by -12bp%
+        \beamer@tempdim=\textwidth%
+        \advance\beamer@tempdim by \beamer@leftmargin%
+        \advance\beamer@tempdim by \beamer@rightmargin%
+        \hskip-\Gm@lmargin\hbox{%
+            \setbox\beamer@tempbox=\hbox{\begin{minipage}[b]{\paperwidth}%
+                    \vbox{}\vskip-.75ex%
+                    \leftskip0.3cm%
+                    \rightskip0.3cm plus1fil\leavevmode
+                    \insertframetitle%
+                    \ifx\insertframesubtitle\@empty%
+                    \strut\par%
+                    \else
+                    \par{\usebeamerfont*{framesubtitle}{\usebeamercolor[fg]{framesubtitle}\insertframesubtitle}\strut\par}%
+                    \fi%
+                    \nointerlineskip
+                    \vbox{}%
+                \end{minipage}}%
+                \beamer@tempdim=\ht\beamer@tempbox%
+                \advance\beamer@tempdim by 2pt%
+                \begin{pgfpicture}{0pt}{0pt}{\paperwidth}{\beamer@tempdim}
+                    \usebeamercolor{frametitle right}
+                    \pgfpathrectangle{\pgfpointorigin}{\pgfpoint{\paperwidth}{\beamer@tempdim}}
+                    \pgfusepath{clip}
+                    \pgftext[left,base]{\pgfuseshading{beamer@frametitleshade}}
+                \end{pgfpicture}
+                \hskip-\paperwidth%
+                \box\beamer@tempbox%
+            }%
+            \hskip-\Gm@rmargin%
+        }%
+        \nointerlineskip
+        \vskip-0.2pt
+        \hbox to\textwidth{\hskip-\Gm@lmargin\pgfuseshading{beamer@topshade}\hskip-\Gm@rmargin}
+        \vskip-2pt
+    }
+\makeatother
+
+\setbeamercolor{subsection in toc}{fg=red}
+%%%
+
+\setbeamercolor{structure}{fg=baseColor}%!80!black}
+\setbeamercolor*{block title example}{fg=blue!50,bg= blue!10}
+\setbeamercolor*{block body example}{fg= red,bg= blue!5}
+\usefonttheme{structuresmallcapsserif}
+
+\setbeamertemplate{footline}[page number]{} 
+
+\setbeamercolor{headline}{fg=blue!90!black,bg=baseColor}
+\setbeamercolor{palette primary}{fg=white,bg=baseColor}
+\setbeamercolor{palette secondary}{fg=white,bg=baseColor}
+\setbeamercolor{palette tertiary}{fg=white,bg=color4}
+\setbeamercolor{frametitle}{fg=white,bg=baseColor}
+
+
+\colorlet{titleleft}{baseColor}
+\colorlet{titleright}{baseColor}
+
+\setbeamercolor*{frametitle}{fg=white}
+
+\makeatletter
+\pgfdeclarehorizontalshading[titleleft,titleright]{beamer@frametitleshade}{\paperheight}{%
+    color(0pt)=(titleleft);
+    color(\paperwidth)=(titleright)}
+\makeatother
+
+%%%
+%%%  End new style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{document}
+\usemintedstyle{lovelace}
+
+
+
+
+
+
+
+{ % all template changes are local to this group.
+    \setbeamertemplate{navigation symbols}{}
+    \begin{frame}[plain]
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[at=(current page.center)] {
+                \includegraphics[width=\paperwidth]{front.pdf}
+            };
+        \end{tikzpicture}
+     \end{frame}
+}
+
+
+\section{Introduzione}
+
+
+
+
+\subsection{}
+\begin{frame}
+    \frametitle{}
+
+\end{frame}
+
+\section{Conclusione}
+
+
+\begin{frame}
+    \frametitle{The end.}
+    \begin{center}
+
+        Thank you!
+\end{center}
+    \end{frame}
+
+
+
+
+
+
+
+
+
+
+%----------------------------------------------------------------------------------------
+
+\end{document} 
