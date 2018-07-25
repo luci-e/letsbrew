@@ -129,11 +129,13 @@ using namespace std;
 		smatch matches;
 
 		while ( getline( ss, line ) ) {
-			if ( regex_search( line, matches, field_reg ) ) {
-				result.request_params[matches[1]] = matches[2];
-			} else {
-				return PARSE_BAD_BODY;
-			}
+		    if( line.empty() ){
+                if ( regex_search( line, matches, field_reg ) ) {
+                    result.request_params[matches[1]] = matches[2];
+                } else {
+                    return PARSE_BAD_BODY;
+                }
+		    }
 		}
 
 		return PARSE_OK;
