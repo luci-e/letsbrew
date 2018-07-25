@@ -73,6 +73,12 @@ def sync_serial_write( data ):
     serial_stream.write( str.encode(data) )
     serial_lock.release()
 
+def json_to_lb( json ):
+    lb_cmd = ""
+    lb_cmd += "ID : {:d}".format(json["ID"])
+
+    return lb_cmd
+
 class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
 
     def __init__( self, request, client_address, server):
@@ -93,15 +99,30 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
 
         json_cmd = json.loads(str_cmd)
 
-        test_data = {'hello_there': 'general_kenobi' }
-
-        self.wfile.write(str.encode(
-            "HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + json.dumps(test_data))
-        )
-
         if( serial_stream ):
-            sync_serial_write( "hello there\0")
-            sync_serial_read()
+            try:
+                request = json_to_lb( json_cmd )
+                serial_lock.acquire()
+                serial_stream.write(bytes(request,'ascii'))
+                serial_stream.flush()
+                line = serial_stream.readline()
+                print(line)
+                splitted = line.decode('ascii').split(',')
+                if len(splitted)==8:
+                    try:
+                        response = self.process(splitted)
+                        print(status)
+                        self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + json.dumps(response)))
+                    except:
+                        print('error in TBThread.process')
+                        print ( sys.exc_info()[0])
+                        raise
+            except:
+                print("exception in TBThread")
+                print ( sys.exc_info())
+                raise
+            finally:
+                serial_lock.release()
 
 class TBThread(Thread):
     def __init__(self):
@@ -122,9 +143,7 @@ class TBThread(Thread):
                     TIME : 1\n\
                     CMD : STATE\n\
                     \r\n\
-                    EXEC_TIME : 1\n\
-                    H2O_TEMP : 1\n\
-                    H2O_AMOUNT : 1\n\0'
+                    KEY : VALUE\n\0'
                 serial_stream.write(bytes(state_request,'ascii'))
                 serial_stream.flush()
                 line = serial_stream.readline()
@@ -147,6 +166,7 @@ class TBThread(Thread):
 
             finally:
                 serial_lock.release()
+
     def process(self,splitted_list):
         err = splitted_list[0].partition(' ')
         device_status = {}

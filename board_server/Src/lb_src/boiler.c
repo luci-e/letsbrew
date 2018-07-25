@@ -61,7 +61,7 @@ int ntc_resistance_to_temperature_linear(float ntc_resistance){
 //TODO choose conversion function
 int read_temperature(){
 	unsigned int reading = adc2_read();
-	const float fixed_resistor_value = 50000.0;
+	const float fixed_resistor_value = 27000.0;
 	float ntc_resistance;
 	const float max_possible_adc_reading = 4098.0;
 	float inverse_ratio = max_possible_adc_reading/(float)reading;

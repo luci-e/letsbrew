@@ -157,6 +157,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_NVIC_Init();
 
+  HAL_ADC_Start(&hadc1);
+
 #if DISABLEBLUETOOTH
   HAL *hal = new HAL(write_on_uart2, dummy);
 #else
