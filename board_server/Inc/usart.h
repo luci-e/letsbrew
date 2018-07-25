@@ -73,6 +73,7 @@ void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 int write_on_uart2(char * str);
+void start_receiving_from_uart();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

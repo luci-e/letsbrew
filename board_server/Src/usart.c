@@ -49,6 +49,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 #include "gpio.h"
 
@@ -137,6 +139,39 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 int write_on_uart2(char * str){
 	return HAL_UART_Transmit( &huart2, ( uint8_t * )str, (uint16_t) strlen( str ), 5000 );
 }
+
+char Rx_indx, Rx_data[2], Rx_Buffer[100], Transfer_cplt;
+
+QueueHandle_t xQueue;
+
+
+//Interrupt callback routine
+void start_receiving_from_uart(){
+	HAL_UART_Receive_IT(&huart2, Rx_data, 1);
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    uint8_t i;
+    if (huart->Instance == USART2)  //current UART
+        {
+        if (Rx_indx==0) {for (i=0;i<100;i++) Rx_Buffer[i]=0;}   //clear Rx_Buffer before receiving new data
+
+        if (Rx_data[0]!=13) //if received data different from ascii 13 (enter)
+            {
+            Rx_Buffer[Rx_indx++]=Rx_data[0];    //add data to Rx_Buffer
+            }
+        else            //if received data = 13
+            {
+            Rx_indx=0;
+            Transfer_cplt=1;//transfer complete, data is ready to read
+            }
+        //parsing_callback( 0, Rx_data[2] );
+        xQueueSendToBackFromISR(xQueue,&Rx_data[0],0);
+        HAL_UART_Receive_IT(&huart2, Rx_data, 1);   //activate UART receive interrupt every time
+        }
+
+}
+
 /* USER CODE END 1 */
 
 /**

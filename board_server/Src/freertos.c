@@ -56,7 +56,7 @@
 #include "app_bluenrg-ms.h"
 #include "stm32f4xx_nucleo.h"
 #include "globals.h"
-
+#include "usart.h"
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -76,7 +76,7 @@ osTimerId controller_timerHandle;
 const unsigned int delay_ms[3] = { 1000,500,100};
 unsigned volatile int blink_mode = 0;
 
-extern UART_HandleTypeDef huart2;
+//extern UART_HandleTypeDef huart2;
 
 /* USER CODE END Variables */
 
@@ -189,17 +189,31 @@ void TimerEmulationTask(void const * argument)
 	  osDelay(TIMER_MS);
   }
 }
+extern QueueHandle_t xQueue;
+
+#define  UARTTIMEOUT 5000
+
 void UART_read_task(void const * argument)
 {
+  xQueue = xQueueCreate(5, sizeof(char));
+  start_receiving_from_uart();
+
   while(1)
   {
-	  uint8_t next_char ='\0';
-	  if(HAL_UART_Receive(&huart2, &next_char, (uint16_t) 1, UARTRCVTIMEOUT) == HAL_OK){
+	  //uint8_t next_char ='\0';
+	  uint8_t next_char;
+	  if(xQueueReceive(xQueue, &next_char, UARTTIMEOUT )==pdTRUE){
 		  parsing_callback( 0, next_char );
 	  }
 	  else{
-		  //osDelay(50);
+		  //TODO parsing reset
 	  }
+	  //if(HAL_UART_Receive(&huart2, &next_char, (uint16_t) 1, UARTRCVTIMEOUT) == HAL_OK){
+	  //parsing_callback( 0, next_char );
+	  //}
+	  //else{
+		  //osDelay(50);
+	  //}
   }
 }
      
