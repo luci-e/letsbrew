@@ -50,13 +50,14 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "globals.h"
+
 /* USER CODE BEGIN Includes */     
 
 #include "app_bluenrg-ms.h"
 #include "stm32f4xx_nucleo.h"
 #include "globals.h"
 #include "usart.h"
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -81,6 +82,7 @@ unsigned volatile int blink_mode = 0;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
+
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
@@ -88,10 +90,9 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 void LedBlinkTask(void const * argument);
 void UART_read_task(void const * argument);
 void bluetooth_task(void const * argument);
-void TimerEmulationTask(void const * argument);
 
-extern void parsing_callback( int channel, char new_char );
 extern void controller_callback (void const *argument);
+extern void parsing_callback( int channel, char new_char );
 
 /* USER CODE END FunctionPrototypes */
 
@@ -104,9 +105,9 @@ void MX_FREERTOS_Init(void) {
 #if !DISABLEBLUETOOTH
   osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
 #endif
-  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 512);
-  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
-  //osThreadDef(TimerEmulationTask__, TimerEmulationTask, osPriorityNormal, 0, 512);
+  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 255);
+  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 64);
+
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -134,15 +135,14 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+#if !DISABLEUART
+  osThreadCreate(osThread(UART_read_task__), NULL);
+#endif
 #if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
-#if !DISABLEUART
 
-  osThreadCreate(osThread(UART_read_task__), NULL);
-#endif
-  //osThreadCreate(osThread(UART_read_task__), NULL);
 
   /* USER CODE END RTOS_THREADS */
 
@@ -156,6 +156,7 @@ void bluetooth_task(void const * argument)
 {
 
   /* init code for STMicroelectronics_BlueNRG-MS_1_0_0 */
+
   /* USER CODE BEGIN StartDefaultTask */
 
 	MX_BlueNRG_MS_Init();
@@ -175,48 +176,16 @@ void LedBlinkTask(void const * argument)
   while(1)
   {
 	  BSP_LED_Toggle(LED2);
-	  //vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
 	  osDelay(delay_ms[blink_mode]);
   }
 }
-void TimerEmulationTask(void const * argument)
-{
-  while(1)
-  {
-	  controller_callback(NULL);
-	  //BSP_LED_Toggle(LED2);
-	  //vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
-	  osDelay(TIMER_MS);
-  }
+
+void UART_read_task(void const * argument){
+    char rx_buffer[2];
+    start_receiving_from_uart( rx_buffer, parsing_callback);
+
+    while(1){/* chill */}
 }
-extern QueueHandle_t xQueue;
-
-#define  UARTTIMEOUT 5000
-
-void UART_read_task(void const * argument)
-{
-  xQueue = xQueueCreate(5, sizeof(char));
-  start_receiving_from_uart();
-
-  while(1)
-  {
-	  //uint8_t next_char ='\0';
-	  uint8_t next_char;
-	  if(xQueueReceive(xQueue, &next_char, UARTTIMEOUT )==pdTRUE){
-		  parsing_callback( 0, next_char );
-	  }
-	  else{
-		  //TODO parsing reset
-	  }
-	  //if(HAL_UART_Receive(&huart2, &next_char, (uint16_t) 1, UARTRCVTIMEOUT) == HAL_OK){
-	  //parsing_callback( 0, next_char );
-	  //}
-	  //else{
-		  //osDelay(50);
-	  //}
-  }
-}
-     
 
 #ifdef __cplusplus
  }

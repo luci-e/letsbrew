@@ -49,19 +49,23 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
-#include "FreeRTOS.h"
-#include "queue.h"
 
 #include "gpio.h"
+#include "dma.h"
 
 /* USER CODE BEGIN 0 */
 
 #include <stdio.h>
 #include "string.h"
 
+char * rx_buffer;
+void (*parsing_cb)(int, char);
+
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USART2 init function */
 
@@ -106,6 +110,25 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* USART2 DMA Init */
+    /* USART2_RX Init */
+    hdma_usart2_rx.Instance = DMA1_Stream5;
+    hdma_usart2_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_usart2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart2_rx);
+
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
@@ -129,6 +152,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOA, USART_TX_Pin|USART_RX_Pin);
 
+    /* USART2 DMA DeInit */
+    HAL_DMA_DeInit(uartHandle->hdmarx);
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
   /* USER CODE END USART2_MspDeInit 1 */
@@ -140,37 +165,15 @@ int write_on_uart2(char * str){
 	return HAL_UART_Transmit( &huart2, ( uint8_t * )str, (uint16_t) strlen( str ), 5000 );
 }
 
-char Rx_indx, Rx_data[2], Rx_Buffer[100], Transfer_cplt;
-
-QueueHandle_t xQueue;
-
-
 //Interrupt callback routine
-void start_receiving_from_uart(){
-	HAL_UART_Receive_IT(&huart2, Rx_data, 1);
+void start_receiving_from_uart( char * receive_buffer, void (*parsing_callback)(int, char)){
+	if( HAL_UART_Receive_DMA( &huart2, (uint8_t*) receive_buffer, (uint16_t) 2) == HAL_OK ){
+	    parsing_cb = parsing_callback;
+	    rx_buffer = receive_buffer;
+	}
 }
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    uint8_t i;
-    if (huart->Instance == USART2)  //current UART
-        {
-        if (Rx_indx==0) {for (i=0;i<100;i++) Rx_Buffer[i]=0;}   //clear Rx_Buffer before receiving new data
 
-        if (Rx_data[0]!=13) //if received data different from ascii 13 (enter)
-            {
-            Rx_Buffer[Rx_indx++]=Rx_data[0];    //add data to Rx_Buffer
-            }
-        else            //if received data = 13
-            {
-            Rx_indx=0;
-            Transfer_cplt=1;//transfer complete, data is ready to read
-            }
-        //parsing_callback( 0, Rx_data[2] );
-        xQueueSendToBackFromISR(xQueue,&Rx_data[0],0);
-        HAL_UART_Receive_IT(&huart2, Rx_data, 1);   //activate UART receive interrupt every time
-        }
 
-}
 
 /* USER CODE END 1 */
 
