@@ -27,8 +27,10 @@
 \usepackage{placeins}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows,%
-    shapes,positioning}
+\usepackage{graphicx}
+\usetikzlibrary{arrows,automata,positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes}
 
 
 
@@ -268,9 +270,23 @@ La Sapienza \\ % Your institution for the title page
 
 \subsection{}
 \begin{frame}
-    \frametitle{}
-
+    \frametitle{Introduzione}
+Bollitore Sama!
 \end{frame}
+
+\subsection{circuit}
+\begin{frame}
+    \frametitle{circuit}
+    \includegraphics[width=\textwidth]{eagle.png}
+\end{frame}
+\subsection{server fsa}
+\begin{frame}
+    \frametitle{server fsa}
+    \input{automaton}
+\end{frame}
+
+
+
 
 \section{Conclusione}
 

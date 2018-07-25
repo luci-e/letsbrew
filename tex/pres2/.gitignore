@@ -1,0 +1,13 @@
+*.run.xml
+*.log
+*.out
+*.toc
+*.run.xml
+*.aux
+*.bak
+*.bcf
+*.nav
+*.snm
+*.vrb
+*.swp
+*.synctex.gz

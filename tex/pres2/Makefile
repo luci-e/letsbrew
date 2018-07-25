@@ -6,6 +6,7 @@ pngs := $(patsubst %.svg,%.png,$(svgs))
 pngs := $(subst $(space),_,$(pngs))
 pngs := $(subst png_,png ,$(pngs))
 target := presentation_1.pdf
+texes := $(wildcard *.tex)
 ttext := $(patsubst %.pdf,%.tex,$(target))
 all: $(target)
 
@@ -23,7 +24,7 @@ clean:
 echo:
 	echo $(pngs)
 
-$(target): $(ttext)
+$(target): $(texes)
 	for i in `seq 1 2` ; do\
 	 	pdflatex -shell-escape $(ttext); \
 	done
