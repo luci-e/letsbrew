@@ -87,22 +87,26 @@ Controller * c;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
-extern "C"{
-	void controller_callback(const void * argument){
-	  c->tick();
-	}
 
-	void parsing_callback( int channel, char new_char ){
-	  c->parse( channel, new_char );
-	}
-
-	void MX_FREERTOS_Init(void);
-}
 
 
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+
+extern "C"{
+    void controller_callback(const void * argument){
+      c->tick();
+    }
+
+    void parsing_callback( int channel, char new_char ){
+      c->parse( channel, new_char );
+    }
+
+    void MX_FREERTOS_Init(void);
+}
+
+static void MX_NVIC_Init(void);
 
 /* USER CODE END PFP */
 
@@ -148,6 +152,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   MX_USART2_UART_Init();
+  MX_NVIC_Init();
+
 #if DISABLEBLUETOOTH
   HAL *hal = new HAL(write_on_uart2, dummy);
 #else
@@ -211,7 +217,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Initializes the CPU, AHB and APB busses clocks 
@@ -225,7 +231,7 @@ void SystemClock_Config(void)
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Configure the Systick interrupt time 
@@ -238,6 +244,17 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+}
+
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* EXTI15_10_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
@@ -277,7 +294,6 @@ void _Error_Handler(char *file, int line)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
-
   }
   /* USER CODE END Error_Handler_Debug */
 }

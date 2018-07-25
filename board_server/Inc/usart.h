@@ -49,14 +49,13 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __usart_H
 #define __usart_H
-
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include <main.hpp>
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
 

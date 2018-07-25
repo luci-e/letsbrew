@@ -217,14 +217,14 @@ int32_t HCI_TL_SPI_Send(uint8_t* buffer, uint16_t size)
 
 
 /**
- * @brief  Reports if the BlueNRG has data for the host micro.
- *
- * @param  None
- * @retval int32_t: 1 if data are present, 0 otherwise
- */
+* @brief  Reports if the BlueNRG has data for the host micro.
+*
+* @param  None
+* @retval int32_t: 1 if data are present, 0 otherwise
+*/
 static int32_t SPI_data_available(void)
 {
-  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
+return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
 }
 
 

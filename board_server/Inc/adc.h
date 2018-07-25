@@ -49,14 +49,13 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __adc_H
 #define __adc_H
-
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include <main.hpp>
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -69,10 +68,11 @@ extern ADC_HandleTypeDef hadc1;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
-unsigned int adc2_read();
+
 void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+unsigned int adc2_read();
 
 /* USER CODE END Prototypes */
 

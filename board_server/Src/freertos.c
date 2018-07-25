@@ -50,7 +50,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "globals.h"
+
 /* USER CODE BEGIN Includes */     
 
 #include "app_bluenrg-ms.h"
@@ -66,6 +66,7 @@
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
+osTimerId controller_timerHandle;
 
 /* USER CODE BEGIN Variables */
 
@@ -99,7 +100,11 @@ extern void controller_callback (void const *argument);
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-       
+#if !DISABLEBLUETOOTH
+  osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
+#endif
+  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
+  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -110,36 +115,29 @@ void MX_FREERTOS_Init(void) {
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* definition and creation of controller_timer */
+  osTimerDef(controller_timer, controller_callback);
+  controller_timerHandle = osTimerCreate(osTimer(controller_timer), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+
+  osTimerStart( controller_timerHandle, TIMER_MS);
+
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-#if !DISABLEBLUETOOTH
-  osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
-#endif
-  osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
-  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
 
-  osTimerDef(Controller_Timer, controller_callback);
-  osTimerCreate(osTimer(Controller_Timer),osTimerPeriodic,NULL);
-
-  osStatus timer_status;
-
-  timer_status = osTimerStart(osTimer(Controller_Timer),TIMER_MS);
-  if( timer_status != osOK ){
-      while(1){};
-  }
-
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
 #if !DISABLEBLUETOOTH
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
   osThreadCreate(osThread(UART_read_task__), NULL);
 
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -152,7 +150,6 @@ void bluetooth_task(void const * argument)
 {
 
   /* init code for STMicroelectronics_BlueNRG-MS_1_0_0 */
-
   /* USER CODE BEGIN StartDefaultTask */
 
 	MX_BlueNRG_MS_Init();

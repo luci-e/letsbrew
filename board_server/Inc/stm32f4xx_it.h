@@ -41,7 +41,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include <main.hpp>
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -50,6 +50,7 @@
 void SysTick_Handler(void);
 void EXTI0_IRQHandler(void);
 void TIM1_UP_TIM10_IRQHandler(void);
+void EXTI15_10_IRQHandler(void);
 
 #ifdef __cplusplus
 }

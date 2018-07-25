@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/lucie/source/repos/letsbrew/board_server/Inc
+HeaderPath=C:/Users/lucie/Desktop/board_server/Inc
 HeaderFiles=FreeRTOSConfig.h;app_bluenrg-ms.h;bluenrg_conf.h;hci_tl_interface.h;stm32f4xx_hal_exti.h;nucleo_f401re_bus.h;nucleo_f401re_errno.h;stm32f4xx_it.h;RTE_Components.h;stm32f4xx_hal_conf.h;main.h;gpio.h;adc.h;spi.h;usart.h;
-SourcePath=C:/Users/lucie/source/repos/letsbrew/board_server/Src
+SourcePath=C:/Users/lucie/Desktop/board_server/Src
 SourceFiles=freertos.c;app_bluenrg-ms.c;hci_tl_interface.c;stm32f4xx_hal_exti.c;nucleo_f401re_bus.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;stm32f4xx_hal_timebase_TIM.c;main.c;gpio.c;adc.c;spi.c;usart.c;
 
 [PreviousLibFiles]
