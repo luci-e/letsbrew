@@ -14,7 +14,7 @@
 #include "globals.h"
 using namespace std;
 
-enum STREAM_CODES{
+enum STREAM_CODE{
 	STREAM_OK,
 	STREAM_OUT_OF_BOUND,
 	STREAM_DONE
@@ -27,7 +27,7 @@ class stream_reader{
 
 
 public:
-	bool message_complete=false;
+	bool message_complete = false;
 	//string message_buffer;
 	char message_buffer[MESSAGEBUFSIZE];
 	stream_reader( size_t max_message_size ){
@@ -36,7 +36,7 @@ public:
 		current_length = 0;
 	}
 
-	int push_char( char c ){
+	STREAM_CODE push_char( char c ){
 		if( current_length >= max_length ){
 			return STREAM_OUT_OF_BOUND;
 		}
@@ -50,8 +50,6 @@ public:
 
 		return STREAM_OK;
 	}
-
-
 
 	void clean(){
 		current_length = 0;

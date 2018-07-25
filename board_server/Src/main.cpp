@@ -80,7 +80,7 @@
 
 using namespace letsbrew;
 
-Controller * c;
+Controller * lb_global_ctrler;
 
 /* USER CODE END PV */
 
@@ -96,11 +96,11 @@ void SystemClock_Config(void);
 
 extern "C"{
     void controller_callback(const void * argument){
-      c->tick();
+      lb_global_ctrler->tick();
     }
 
     void parsing_callback( int channel, char new_char ){
-      c->parse( channel, new_char );
+      lb_global_ctrler->parse( channel, new_char );
     }
 
     void MX_FREERTOS_Init(void);
@@ -159,7 +159,7 @@ int main(void)
 #else
   HAL *hal= new HAL(write_on_uart2, lb_transmit_data);
 #endif
-  c = new Controller(hal);
+  lb_global_ctrler = new Controller(hal);
 
   // Set the callback for the bluetooth read
   set_controller_cb( parsing_callback);
@@ -288,7 +288,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   * @param  line: The line in file as a number.
   * @retval None
   */
-void _Error_Handler(char *file, int line)
+extern "C" void _Error_Handler(char *file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */

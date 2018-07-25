@@ -38,6 +38,7 @@ class Controller{
     float heater_on_seconds=0;
     //stream_reader *channels[NUMCHANNELS];//sr( 512 );
     stream_reader channels[2] = {stream_reader(BUFSIZE), stream_reader(BUFSIZE) };
+
 	private:
         void timer_expired();
         void respond(unsigned int channel, char * msg);

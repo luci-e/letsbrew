@@ -20,7 +20,7 @@ def serial_init():
         try:
             SERIAL_PORT = '\\.\\COM' + sys.argv[1]
             serial_stream = serial.Serial(port=SERIAL_PORT, baudrate=BAUDRATE, parity=serial.PARITY_NONE,
-                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=0)
+                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=5000)
         except Exception:
             print("Could not open serial_stream")
 
@@ -62,7 +62,7 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
         )
 
         if( serial_stream ):
-            sync_serial_write( "hello there")
+            sync_serial_write( "hello there\0")
             sync_serial_read()
 
 

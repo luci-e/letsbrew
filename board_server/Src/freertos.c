@@ -103,8 +103,8 @@ void MX_FREERTOS_Init(void) {
 #if !DISABLEBLUETOOTH
   osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
 #endif
+  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 512);
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
-  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 2048);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -178,10 +178,9 @@ void UART_read_task(void const * argument)
 {
   while(1)
   {
-	  uint8_t c='\0';
-	  //vTaskDelay(pdMS_TO_TICKS( 1000 ));
-	  if(HAL_UART_Receive(&huart2, &c, (uint16_t) 1, UARTRCVTIMEOUT)==HAL_OK){
-		  parsing_callback( 0, c );
+	  uint8_t next_char ='\0';
+	  if(HAL_UART_Receive(&huart2, &next_char, (uint16_t) 1, UARTRCVTIMEOUT) == HAL_OK){
+		  parsing_callback( 0, next_char );
 	  }
 	  else{
 		  osDelay(50);

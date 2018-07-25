@@ -104,54 +104,67 @@ void Controller::compile_detailed_response(){
 }
 
 void Controller::parse(unsigned int channel,char new_character){
-
 	if(channel>=NUMCHANNELS){
 		return;
 	}
 
-	//TODO
-	channels[channel].push_char(new_character);
-	if(channels[channel].message_complete){
-		letsbrew::lb_request lbr;
-		auto result =letsbrew::lb_parse_request( channels[channel].message_buffer, lbr );
-        //osMutexWait(mutex,0);
-		if(result == PARSE_OK){
-			switch(lbr.request_header.CMD){
-			case BREW:
-			{
-					//auto er =
-					brew();
-					compile_response();
-					break;
-			}
-			case CANCEL:
-			{
-					abort();
-					compile_response();
-					break;
-			}
-			case(STATE):
-			{
-					compile_detailed_response();
-					break;
-			}
-			case(KEEPWARM):
-			{
-					unsigned int duration = stoi(lbr.request_params["DURATION"]);
-					//auto er=
-					keep_warm(duration);
-					compile_response();
-					break;
-			}
+	STREAM_CODE stream_ret = channels[channel].push_char(new_character);
 
-			}
-		}
-		else{
-			last_error = BADREQUEST;
-			compile_response();
-		}
-		respond(channel,response_message_buffer);
-		//osMutexRelease(mutex);
+	switch( stream_ret ){
+	    case STREAM_DONE:{
+	        lb_request lbr;
+            auto result = lb_parse_request( channels[channel].message_buffer, lbr );
+            osMutexWait(mutex,0);
+            if(result == PARSE_OK){
+                switch(lbr.request_header.CMD){
+                case BREW:
+                {
+                        //auto er =
+                        brew();
+                        compile_response();
+                        break;
+                }
+                case CANCEL:
+                {
+                        abort();
+                        compile_response();
+                        break;
+                }
+                case(STATE):
+                {
+                        compile_detailed_response();
+                        break;
+                }
+                case(KEEPWARM):
+                {
+                        unsigned int duration = stoi(lbr.request_params["DURATION"]);
+                        keep_warm(duration);
+                        compile_response();
+                        break;
+                }
+
+                }
+            }
+            else{
+                last_error = BADREQUEST;
+                compile_response();
+            }
+            respond(channel,response_message_buffer);
+            channels[channel].clean();
+            osMutexRelease(mutex);
+            break;
+	    }
+
+	    case STREAM_OUT_OF_BOUND:{
+	        channels[channel].clean();
+	        break;
+	    }
+
+	    case STREAM_OK:
+	    default:{
+	        // Mr. Compiler I feel so optimized away
+	        break;
+	    }
 	}
 
 }
