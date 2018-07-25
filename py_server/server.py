@@ -19,6 +19,7 @@ serial_lock = threading.Lock()
 import paho.mqtt.client as mqtt
 
 THINGSBOARD_HOST = 'localhost'
+THINGSBOARD_HOST = '144.76.3.130'
 ACCESS_TOKEN = 'BMqsFvyVst8g0v11SjLO'
 
 # Data capture and upload interval in seconds. Less interval will eventually hang the DHT22.
