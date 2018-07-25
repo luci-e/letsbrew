@@ -38,12 +38,12 @@ void heater_off(){
 }
 //TODO find beta
 int ntc_resistance_to_temperature_beta_equation(float ntc_resistance){
-	const float beta = 0.1;
+	const float beta = 4066;
 	const float t0 = 298.15;
 	const float r0 = 1e5;
 	const float r_inf = r0 * exp(-beta/t0);
-	float temp = beta / (log(ntc_resistance/r_inf));
-	return round(temp);
+	float tempkel = beta / (log(ntc_resistance/r_inf));
+	return round(tempkel - 273.15);
 }
 
 int ntc_resistance_to_temperature_linear(float ntc_resistance){
@@ -73,7 +73,7 @@ int read_temperature(){
 	ntc_resistance = fixed_resistor_value * (1 / (inverse_ratio - 1));
 
 #endif
-	return ntc_resistance_to_temperature_linear(ntc_resistance);
+	return ntc_resistance_to_temperature_beta_equation(ntc_resistance);
 }
 
 extern unsigned int blink_mode;
