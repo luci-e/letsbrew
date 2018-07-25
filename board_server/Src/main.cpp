@@ -80,7 +80,7 @@
 
 using namespace letsbrew;
 
-Controller * lb_global_ctrler;
+volatile Controller * lb_global_ctrler;
 
 /* USER CODE END PV */
 
@@ -96,11 +96,13 @@ void SystemClock_Config(void);
 
 extern "C"{
     void controller_callback(const void * argument){
-      lb_global_ctrler->tick();
+    	Controller * c = (Controller *)lb_global_ctrler;
+      c->tick();
     }
 
     void parsing_callback( int channel, char new_char ){
-      lb_global_ctrler->parse( channel, new_char );
+    	Controller * c = (Controller *)lb_global_ctrler;
+      c->parse( channel, new_char );
     }
 
     void MX_FREERTOS_Init(void);

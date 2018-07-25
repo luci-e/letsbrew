@@ -42,7 +42,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern EXTI_HandleTypeDef hexti0;
-
+extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim1;
 
 /******************************************************************************/
@@ -113,6 +113,17 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void USART2_IRQHandler(void)
+{
+
+HAL_UART_IRQHandler(&huart2);
+
+}
+
+void HardFault_Handler(void){
+
+	//daym
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -107,7 +107,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN USART2_MspInit 1 */
-
+    HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE END USART2_MspInit 1 */
   }
 }
@@ -154,21 +155,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     uint8_t i;
     if (huart->Instance == USART2)  //current UART
         {
-        if (Rx_indx==0) {for (i=0;i<100;i++) Rx_Buffer[i]=0;}   //clear Rx_Buffer before receiving new data
-
-        if (Rx_data[0]!=13) //if received data different from ascii 13 (enter)
-            {
-            Rx_Buffer[Rx_indx++]=Rx_data[0];    //add data to Rx_Buffer
-            }
-        else            //if received data = 13
-            {
-            Rx_indx=0;
-            Transfer_cplt=1;//transfer complete, data is ready to read
-            }
+//        if (Rx_indx==0) {for (i=0;i<100;i++) Rx_Buffer[i]=0;}   //clear Rx_Buffer before receiving new data
+//
+//        if (Rx_data[0]!=13) //if received data different from ascii 13 (enter)
+//            {
+//            Rx_Buffer[Rx_indx++]=Rx_data[0];    //add data to Rx_Buffer
+//            }
+//        else            //if received data = 13
+//            {
+//            Rx_indx=0;
+//            Transfer_cplt=1;//transfer complete, data is ready to read
+//            }
         //parsing_callback( 0, Rx_data[2] );
         xQueueSendToBackFromISR(xQueue,&Rx_data[0],0);
         HAL_UART_Receive_IT(&huart2, Rx_data, 1);   //activate UART receive interrupt every time
         }
+    //portBASE_TYPE woken = 0;
+    //portEND_SWITCHING_ISR(woken);
 
 }
 

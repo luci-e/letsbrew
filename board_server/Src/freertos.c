@@ -195,12 +195,13 @@ extern QueueHandle_t xQueue;
 
 void UART_read_task(void const * argument)
 {
-  xQueue = xQueueCreate(5, sizeof(char));
+  xQueue = xQueueCreate(500, sizeof(char));
   start_receiving_from_uart();
 
   while(1)
   {
 	  //uint8_t next_char ='\0';
+
 	  uint8_t next_char;
 	  if(xQueueReceive(xQueue, &next_char, UARTTIMEOUT )==pdTRUE){
 		  parsing_callback( 0, next_char );
@@ -208,6 +209,7 @@ void UART_read_task(void const * argument)
 	  else{
 		  //TODO parsing reset
 	  }
+	  //start_receiving_from_uart();
 	  //if(HAL_UART_Receive(&huart2, &next_char, (uint16_t) 1, UARTRCVTIMEOUT) == HAL_OK){
 	  //parsing_callback( 0, next_char );
 	  //}
