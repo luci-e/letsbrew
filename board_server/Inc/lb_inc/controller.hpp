@@ -1,6 +1,6 @@
 #include "HAL.hpp"
 #define NUMCHANNELS 2
-#define BUFSIZE 512
+#define BUFSIZE 256
 
 #include "stream_reader.hpp"
 #include "cmsis_os.h"
@@ -42,12 +42,11 @@ class Controller{
 	private:
         void timer_expired();
         void respond(unsigned int channel, char * msg);
-        char response_message_buffer[BUFSIZE];
-        void compile_response();
-        void compile_detailed_response();
+        char response_message_buffer[2][BUFSIZE];
+        void compile_response( uint channel );
+        void compile_detailed_response( uint channel );
         int error_to_code(AUTOMERRORS err);
         float seconds_to_watts(float seconds);
-        osMutexId mutex;
 
     public:
 

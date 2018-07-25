@@ -54,8 +54,8 @@
 /* USER CODE BEGIN Includes */     
 
 #include "app_bluenrg-ms.h"
-
 #include "stm32f4xx_nucleo.h"
+#include "globals.h"
 
 #ifdef __cplusplus
  extern "C" {
