@@ -32,8 +32,6 @@ Controller::Controller(HAL * usehal){
     state = IDLE;
     last_error = NOERROR;
     ticks_to_go = 0;
-    osMutexDef(mutex);
-    mutex = osMutexCreate (osMutex(mutex));
 }
 
 const char * Controller::last_err_to_str(){
@@ -88,16 +86,16 @@ int Controller::error_to_code(AUTOMERRORS err) {
 	}
 }
 
-void Controller::compile_response(){
-	snprintf( response_message_buffer, BUFSIZE, "%d %s, %s\n", error_to_code(last_error), last_err_to_str(),state_to_str());
+void Controller::compile_response( uint channel){
+	snprintf( &response_message_buffer[channel][0], BUFSIZE, "%d %s, %s\n", error_to_code(last_error), last_err_to_str(),state_to_str());
 }
 
 inline float Controller::seconds_to_watts(float seconds){
 	return seconds * 1000.0/3600.0;
 }
 
-void Controller::compile_detailed_response(){
-	snprintf( response_message_buffer, BUFSIZE,\
+void Controller::compile_detailed_response( uint channel ){
+	snprintf( &response_message_buffer[channel][0], BUFSIZE,\
 			"%d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used\n",\
 			error_to_code(last_error), last_err_to_str(),state_to_str(),\
 			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)) );
@@ -114,32 +112,31 @@ void Controller::parse(unsigned int channel,char new_character){
 	    case STREAM_DONE:{
 	        lb_request lbr;
             auto result = lb_parse_request( channels[channel].message_buffer, lbr );
-            osMutexWait(mutex,0);
             if(result == PARSE_OK){
                 switch(lbr.request_header.CMD){
                 case BREW:
                 {
                         //auto er =
                         brew();
-                        compile_response();
+                        compile_response(channel);
                         break;
                 }
                 case CANCEL:
                 {
                         abort();
-                        compile_response();
+                        compile_response(channel);
                         break;
                 }
                 case(STATE):
                 {
-                        compile_detailed_response();
+                        compile_detailed_response(channel);
                         break;
                 }
                 case(KEEPWARM):
                 {
                         unsigned int duration = stoi(lbr.request_params["DURATION"]);
                         keep_warm(duration);
-                        compile_response();
+                        compile_response(channel);
                         break;
                 }
 
@@ -147,11 +144,10 @@ void Controller::parse(unsigned int channel,char new_character){
             }
             else{
                 last_error = BADREQUEST;
-                compile_response();
+                compile_response(channel);
             }
-            respond(channel,response_message_buffer);
+            respond(channel, &response_message_buffer[channel][0]);
             channels[channel].clean();
-            osMutexRelease(mutex);
             break;
 	    }
 
@@ -287,9 +283,8 @@ AUTOMERRORS Controller::brew(){
 
 void Controller::tick(){
 #ifdef UARTDEBUG
-	compile_response();
-	respond(0,response_message_buffer);
-
+	compile_response(0);
+	respond(0, &response_message_buffer[0][0]);
 #endif
 
     switch(state){
