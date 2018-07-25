@@ -1,0 +1,46 @@
+
+\documentclass[11pt]{report}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usetikzlibrary{arrows,automata,positioning}
+\usetikzlibrary{calc}
+\begin{document}
+\begin{center}
+
+\resizebox{1\textwidth}{!}{
+
+\begin{tikzpicture}[>=latex',shorten >=1pt,node distance=5cm,on grid,auto]
+    \node[state,initial, text width=2cm, align=center] (idle) {\begin{small}IDLE/\\Heater off\end{small}};
+    \node[state, text width=2cm, align=center] (kwa) [above right=of idle] {\begin{tiny}Keep Warm Active/\\Heater on \end{tiny}};
+    \node[state, text width=2cm, align=center] (kwi) [right=of kwa] {\begin{tiny}Keep Warm Idle/\\Heater off \end{tiny}};
+  \node[state, text width=2cm, align=center] (brp) [above left=of idle] {\begin{tiny}Brew preheating/\\Heater on \end{tiny}};
+  \node[state, text width=2cm, align=center] (brh) [above left=of brp] {\begin{tiny}Brewing/\\Heater on \end{tiny}};
+  \node[state,accepting, text width=2cm, align=center] (err) [below right=of idle] {\begin{tiny}Error state/\\Heater off \end{tiny}};
+  %\path[->] (q0-e) edge node {a} (q1-0);
+  %\path[->] (q0-e) edge node {b} (q3-0);
+\path[->] (idle) edge [bend left] node  {\tiny Brew, $T<50$ / OK} (brp);
+  \path[->] (idle) edge [loop below] node {\tiny Brew, $T\geq50$ OR KW,$T<45$ / ERROR} (idle);
+  \path[->] (brp) edge [loop right] node {\tiny Brew,KW / ERROR} (brp);
+  \path[->] (brh) edge [loop right] node {\tiny Brew,KW / ERROR} (brh);
+  \path[->] (kwa) edge [loop above] node {\tiny Brew,KW/ERR}(kwa);
+  \path[->] (kwi) edge [loop above] node {\tiny Brew,KW/ERR}(kwi);
+
+  %\path[->] (q0-1) edge [bend right] node {b} (q3-0);
+  %\path[->] (q1-0) edge [bend left=90,looseness=2.5] node {a} (q3-1);
+  \path[->] (brp) edge node {\tiny $T \geq 90$/Start T1,OK} (brh);
+  \path[->] (idle) edge [bend left] node {\tiny KW,$T\geq 45$/OK Start T2} (kwa);
+  \path[->] (kwi) edge[out = 140,in= 45,bend right ] node {\tiny $T<=45$/OK} (kwa);
+  \path[->] (kwi) edge[out = -90, in = -45,bend left] node {\tiny T2 Expired/OK} (idle);
+  \path[->] (kwa) edge node {\tiny $T>=60$/OK} (kwi);
+  \path[->,red] (kwa) edge[out=-45,in=0,looseness=3] node[red] {\tiny $T<40$/ERROR} (err);
+  \path[->] (kwa) edge[out=270,in=0,looseness=1] node[ ] {\tiny T2 Expired/OK} (idle);
+  \path[->,red] (brh) edge [out=180,in=270,looseness=1] node [red] {\tiny $T < 80$/ERROR} (err);
+  %\draw [->] (empt) ..  controls  ($(empt)-(2cm,8cm)$) and
+  %  ($(empt)-(2cm,8cm)$) ..  (err);
+  %\path[->] (q3-0) edge [bend right] node {b} (q0-1);
+  %\path[->] (q3-1) edge [loop below] node {a} (q3-1);
+  %\path[->] (q3-1) edge node {b} (q0-1);
+\end{tikzpicture}
+}
+\end{center}
+\end{document}
