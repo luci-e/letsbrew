@@ -184,7 +184,7 @@ void UART_read_task(void const * argument){
     char rx_buffer[2];
     start_receiving_from_uart( rx_buffer, parsing_callback);
 
-    while(1){/* chill */}
+    while(1){osDelay(1000);}
 }
 
 #ifdef __cplusplus

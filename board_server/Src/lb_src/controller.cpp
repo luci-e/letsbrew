@@ -96,9 +96,9 @@ inline float Controller::seconds_to_watts(float seconds){
 
 void Controller::compile_detailed_response( uint channel ){
 	snprintf( &response_message_buffer[channel][0], BUFSIZE,\
-			"%d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used\n",\
+			"%d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used, %d temperature, %d seconds to go\n",\
 			error_to_code(last_error), last_err_to_str(),state_to_str(),\
-			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)) );
+			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)), hal->get_temperature(), ticks_to_seconds(ticks_to_go) );
 }
 
 void Controller::parse(unsigned int channel,char new_character){
