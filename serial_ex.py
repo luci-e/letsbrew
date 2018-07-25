@@ -17,6 +17,7 @@ if __name__ == "__main__":
 		bytesize=serial.EIGHTBITS, timeout=300)
 
 	while True:
-		ser_in.write(b'hello')
+		echo = ser_in.readline()
+		print(echo)
 
 	
