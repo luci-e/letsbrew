@@ -114,7 +114,7 @@ void Controller::parse(unsigned int channel,char new_character){
 	    case STREAM_DONE:{
 	        lb_request lbr;
             auto result = lb_parse_request( channels[channel].message_buffer, lbr );
-            osMutexWait(mutex,0);
+            //osMutexWait(mutex,0);
             if(result == PARSE_OK){
                 switch(lbr.request_header.CMD){
                 case BREW:
@@ -151,7 +151,7 @@ void Controller::parse(unsigned int channel,char new_character){
             }
             respond(channel,response_message_buffer);
             channels[channel].clean();
-            osMutexRelease(mutex);
+            //osMutexRelease(mutex);
             break;
 	    }
 

@@ -50,7 +50,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-
+#include "globals.h"
 /* USER CODE BEGIN Includes */     
 
 #include "app_bluenrg-ms.h"
@@ -88,6 +88,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 void LedBlinkTask(void const * argument);
 void UART_read_task(void const * argument);
 void bluetooth_task(void const * argument);
+void TimerEmulationTask(void const * argument);
 
 extern void parsing_callback( int channel, char new_char );
 extern void controller_callback (void const *argument);
@@ -105,6 +106,7 @@ void MX_FREERTOS_Init(void) {
 #endif
   osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 512);
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 512);
+  //osThreadDef(TimerEmulationTask__, TimerEmulationTask, osPriorityNormal, 0, 512);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -136,7 +138,11 @@ void MX_FREERTOS_Init(void) {
   osThreadCreate(osThread(bluetooth_task), NULL);
 #endif
   osThreadCreate(osThread(LedBlinkTask__), NULL);
+#if !DISABLEUART
+
   osThreadCreate(osThread(UART_read_task__), NULL);
+#endif
+  //osThreadCreate(osThread(UART_read_task__), NULL);
 
   /* USER CODE END RTOS_THREADS */
 
@@ -173,7 +179,16 @@ void LedBlinkTask(void const * argument)
 	  osDelay(delay_ms[blink_mode]);
   }
 }
-
+void TimerEmulationTask(void const * argument)
+{
+  while(1)
+  {
+	  controller_callback(NULL);
+	  //BSP_LED_Toggle(LED2);
+	  //vTaskDelay(pdMS_TO_TICKS( delay_ms[blink_mode] ));
+	  osDelay(TIMER_MS);
+  }
+}
 void UART_read_task(void const * argument)
 {
   while(1)
@@ -183,7 +198,7 @@ void UART_read_task(void const * argument)
 		  parsing_callback( 0, next_char );
 	  }
 	  else{
-		  osDelay(50);
+		  //osDelay(50);
 	  }
   }
 }
