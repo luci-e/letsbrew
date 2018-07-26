@@ -18,6 +18,7 @@ serial_lock = threading.Lock()
 
 import paho.mqtt.client as mqtt
 
+client = None
 
 
 def process( splitted_list):
@@ -143,7 +144,7 @@ class TBThread(Thread):
         self.done = True
     def run(self):
         while(not self.done):
-            time.sleep(2)
+            time.sleep(4)
             try:
                 serial_lock.acquire()
 
@@ -153,7 +154,7 @@ class TBThread(Thread):
                 line = serial_stream.readline()
                 print(line)
                 #serial_lock.release()
-                continue
+                #continue
 
                 splitted = line.decode('ascii').split(',')
                 if len(splitted)==8:
@@ -181,7 +182,7 @@ class TBThread(Thread):
 
 tbthread = None
 def main():
-
+    global client
     os.chdir(ROOT_DIRECTORY)
     serial_init()
 
@@ -190,7 +191,6 @@ def main():
 
 
         tbthread = TBThread()
-        tbthread.start()
 
 
         THINGSBOARD_HOST = 'localhost'
@@ -213,6 +213,12 @@ def main():
         client.connect(THINGSBOARD_HOST, 1883, 60)
 
         client.loop_start()
+        tbthread.start()
+    if( '--interactive' in sys.argv):
+        while(True):
+            line = sys.stdin.readline()
+            print(line)
+            sync_serial_write( line + '\0')
 
     if( '-start_server' in sys.argv ):
 
