@@ -17,31 +17,36 @@ namespace letsbrew{
 using namespace std;
 
 	int lb_parse_all(const string &lb_request_string, lb_request &result){
-	    uint scanned;
-	    char cmd[16];
-	    uint duration;
-
-	    const char * c_string = lb_request_string.c_str();
-
-	    scanned = sscanf(c_string, "%u %s %u\n", result.request_header.id, cmd, duration);
-	    if(scanned != 3){
-	        return PARSE_BAD_REQUEST;
-	    }
-
-	    string cmd_str = string(cmd);
-	    if( cmd_str == "BREW" ){
-	        result.request_header.CMD = BREW;
-	    }else if(cmd_str == "STATE"){
-            result.request_header.CMD = STATE;
-	    }else if(cmd_str == "KEEPWARM" ){
-            result.request_header.CMD = KEEPWARM;
-	    }else{
-	        return PARSE_BAD_REQUEST;
-	    }
-
-        result.request_params["DURATION"] = to_string((int) duration);
-
-        return PARSE_OK;
+//	    uint scanned;
+//	    char cmd[16];
+//	    uint duration;
+//
+//	    const char * c_string = lb_request_string.c_str();
+//
+//	    try{
+//            scanned = sscanf(c_string, "%u %s %u\n", result.request_header.id, cmd, duration);
+//            if(scanned != 3){
+//                return PARSE_BAD_REQUEST;
+//            }
+//
+//            string cmd_str = string(cmd);
+//            if( cmd_str == "BREW" ){
+//                result.request_header.CMD = BREW;
+//            }else if(cmd_str == "STATE"){
+//                result.request_header.CMD = STATE;
+//            }else if(cmd_str == "KEEPWARM" ){
+//                result.request_header.CMD = KEEPWARM;
+//            }else{
+//                return PARSE_BAD_REQUEST;
+//            }
+//
+//            result.request_params["DURATION"] = to_string((int) duration);
+//
+//            return PARSE_OK;
+//	    }catch(...){
+//	        return PARSE_BAD_REQUEST;
+//	    }
+	    return PARSE_BAD_REQUEST;
 	}
 
 
@@ -88,25 +93,27 @@ using namespace std;
 
 	            case PARSE_HEADER:{
 	                if( regex_match( line, protocol_line, header_reg[parser_line_header]) ){
-	                    switch( parser_line_header){
-	                        case 0:
-	                            result.request_header.id = (uint) stoi(protocol_line[1]);
-	                            parser_line_header++;
-	                            break;
-	                        case 1:
-                                result.request_header.usr = (uint) stoi(protocol_line[1]);
-                                parser_line_header++;
-	                            break;
-	                        case 2:
-                                result.request_header.time = (uint) stoi(protocol_line[1]);
-                                parser_line_header++;
-	                            break;
-	                        case 3:
-                                result.request_header.CMD = string_to_lb_cmd(protocol_line[1]);
-                                parser_line_header++;
-	                            parser_state = PARSE_BODY;
-	                            break;
-	                    }
+	                    try{
+                            switch( parser_line_header){
+                                case 0:
+                                    result.request_header.id = stoul(protocol_line[1]);
+                                    parser_line_header++;
+                                    break;
+                                case 1:
+                                    result.request_header.usr = stoul(protocol_line[1]);
+                                    parser_line_header++;
+                                    break;
+                                case 2:
+                                    result.request_header.time = stoul(protocol_line[1]);
+                                    parser_line_header++;
+                                    break;
+                                case 3:
+                                    result.request_header.CMD = string_to_lb_cmd(protocol_line[1]);
+                                    parser_line_header++;
+                                    parser_state = PARSE_BODY;
+                                    break;
+                            }
+	                    }catch(...){ return PARSE_BAD_REQUEST;}
 	                }
 	                break;
 	            }

@@ -79,9 +79,19 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+int dummy(char * ptr){
+    return 0;
+}
+
+
 using namespace letsbrew;
 
 Controller * lb_global_ctrler;
+#if DISABLEBLUETOOTH
+  HAL global_hal(write_on_uart2, dummy);
+#else
+  HAL global_hal(write_on_uart2, lb_transmit_data);
+#endif
 
 /* USER CODE END PV */
 
@@ -121,9 +131,6 @@ static void MX_NVIC_Init(void);
   * @retval None
   */
 
-int dummy(char * ptr){
-    return 0;
-}
 
 int main(void)
 {
@@ -160,12 +167,7 @@ int main(void)
 
   HAL_ADC_Start(&hadc1);
 
-#if DISABLEBLUETOOTH
-  HAL *hal = new HAL(write_on_uart2, dummy);
-#else
-  HAL *hal= new HAL(write_on_uart2, lb_transmit_data);
-#endif
-  lb_global_ctrler = new Controller(hal);
+  lb_global_ctrler = new Controller(&global_hal);
 
   // Set the callback for the bluetooth read
   set_controller_cb( parsing_callback);

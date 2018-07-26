@@ -105,7 +105,7 @@ void MX_FREERTOS_Init(void) {
 #if !DISABLEBLUETOOTH
   osThreadDef(bluetooth_task, bluetooth_task, osPriorityNormal, 0, 2048);
 #endif
-  osThreadDef(UART_read_task__, UART_read_task, osPriorityNormal, 0, 255);
+  osThreadDef(UART_read_task__, UART_read_task, osPriorityIdle, 0, 255);
   osThreadDef(LedBlinkTask__, LedBlinkTask, osPriorityNormal, 0, 64);
 
   /* USER CODE END Init */

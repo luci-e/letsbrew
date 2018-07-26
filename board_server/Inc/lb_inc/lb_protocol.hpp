@@ -33,9 +33,9 @@ using namespace std;
 	};
 
 	struct lb_request_header{
-		uint32_t id;
-		uint32_t usr;
-        uint32_t time;
+		unsigned long id;
+		unsigned long usr;
+        unsigned long time;
 		LB_CMD CMD;
 	};
 

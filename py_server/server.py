@@ -87,27 +87,26 @@ class brew_thread(Thread):
 def json_to_lb( json_cmd ):
     lb_cmd = "";
 
-    lb_cmd += '"ID" : {}\n'.format(json_cmd["ID"])
-    lb_cmd += '"USR" : {}\n'.format(json_cmd["USR"])
-    lb_cmd += '"TIME" : {}\n'.format(json_cmd["TIME"])
-    lb_cmd += '"CMD" : "{}"\n'.format(json_cmd["CMD"])
+    lb_cmd += '"ID" : {}\n\
+    "USR" : {}\n\
+    "TIME" : {}\n\
+    "CMD" : "{}"\n'.format(json_cmd["ID"], json_cmd["USR"], json_cmd["TIME"], json_cmd["CMD"])
 
     CMD = json_cmd["CMD"];
 
     if( CMD == 'BREW'):
-            lb_cmd += '"H2O_AMOUNT" : {}\n'.format(json_cmd["H2O_AMOUNT"])
-            lb_cmd += '"H2O_TEMP" : {}\n'.format(json_cmd["H2O_TEMP"])
-            lb_cmd += '"EXEC_TIME" : {}\n'.format(json_cmd["EXEC_TIME"])
+            lb_cmd += '"H2O_AMOUNT" : {}\n\
+            "H2O_TEMP" : {}\n\
+            "EXEC_TIME" : {}\n\0'.format(json_cmd["H2O_AMOUNT"], json_cmd["H2O_TEMP"], json_cmd["EXEC_TIME"])
     elif ( CMD == 'KEEPWARM'):
-            lb_cmd += '"DURATION" : {}\n'.format(json_cmd["DURATION"])
+            lb_cmd += '"DURATION" : {}\n\0'.format(json_cmd["DURATION"])
     elif (CMD ==  'STATE'):
-            lb_cmd += "\n";
+        pass
     
-    return lb_cmd;
+    return lb_cmd
 
 
 class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
-
         def __init__( self, request, client_address, server):
             super(lb_request_handler, self).__init__( request, client_address, server )
 
@@ -121,11 +120,16 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
 
             json_cmd = json.loads(str_cmd)
             request = json_to_lb(json_cmd)
+
+            print("Received request: ")
             print(request)
 
             if( serial_stream ):
                 sync_serial_write( request )
-                line = sync_serial_read()
+                while(True):
+                    line = sync_serial_read()
+                    if line is not None:
+                        break
                 self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line ))
 
 class HTTP_Server_Thread(Thread):    
@@ -300,6 +304,8 @@ def main():
         tbthread.start()
 
     if( '--start_server' in sys.argv ):
+        srt = Serial_reader_Thread()
+        srt.start()
 
         http_thread = HTTP_Server_Thread()
         http_thread.start()

@@ -172,10 +172,7 @@ void Controller::parse(unsigned int channel,char new_character){
 	        break;
 	    }
 	}
-
-
 }
-
 
 void Controller::respond(unsigned int channel, char * msg){
 	switch(channel){
