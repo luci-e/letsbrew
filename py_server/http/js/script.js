@@ -78,13 +78,14 @@ function send_data_web( form_id ) {
 
 	var jqxhr = $.post( 
 		$(form_id).attr('action'),
-		JSON.stringify(command),
+		JSON.stringify(command, null, 2),
 		function( result ){ 
 			console.log(result); 
 		},
 	);
 
 	jqxhr.done( function( data ) {
+		console.log(data)
 	});
 
 	return false;

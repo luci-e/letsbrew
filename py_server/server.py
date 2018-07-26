@@ -84,52 +84,51 @@ class brew_thread(Thread):
             sync_serial_write( brew_request )
             time.sleep(0.5)
 
-def json_to_lb( json ):
+def json_to_lb( json_cmd ):
     lb_cmd = "";
 
-    lb_cmd += "ID : " + json_cmd["ID"] + "\n";
-    lb_cmd += "USR : " + json_cmd["USR"] + "\n";
-    lb_cmd += "TIME : " + json_cmd["TIME"] + "\n";
-    lb_cmd += "CMD : " + json_cmd["CMD"] + "\n";
-    lb_cmd += "\r\n"
+    lb_cmd += '"ID" : {}\n'.format(json_cmd["ID"])
+    lb_cmd += '"USR" : {}\n'.format(json_cmd["USR"])
+    lb_cmd += '"TIME" : {}\n'.format(json_cmd["TIME"])
+    lb_cmd += '"CMD" : "{}"\n'.format(json_cmd["CMD"])
 
-    CMD = json["CMD"];
+    CMD = json_cmd["CMD"];
 
     if( CMD == 'BREW'):
-            lb_cmd += "EXEC_TIME : " + json_cmd["EXEC_TIME"] + "\n";
-            lb_cmd += "H2O_TEMP : " + json_cmd["H2O_TEMP"] + "\n";
-            lb_cmd += "H2O_AMOUNT : " + json_cmd["H2O_AMOUNT"] + "\n";
+            lb_cmd += '"H2O_AMOUNT" : {}\n'.format(json_cmd["H2O_AMOUNT"])
+            lb_cmd += '"H2O_TEMP" : {}\n'.format(json_cmd["H2O_TEMP"])
+            lb_cmd += '"EXEC_TIME" : {}\n'.format(json_cmd["EXEC_TIME"])
     elif ( CMD == 'KEEPWARM'):
-            lb_cmd += "DURATION : " + json_cmd["DURATION"] + "\n";
+            lb_cmd += '"DURATION" : {}\n'.format(json_cmd["DURATION"])
     elif (CMD ==  'STATE'):
             lb_cmd += "\n";
     
     return lb_cmd;
 
+
 class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
 
-    def __init__( self, request, client_address, server):
-        super(lb_request_handler, self).__init__( request, client_address, server )
+        def __init__( self, request, client_address, server):
+            super(lb_request_handler, self).__init__( request, client_address, server )
 
-    def do_POST( self ):
-        request_path = self.path
-        
-        request_headers = self.headers
-        content_length = request_headers.get('Content-Length')
-        
-        str_cmd = self.rfile.read(int(content_length))
-        print(str_cmd)
+        def do_POST( self ):
+            request_path = self.path
+            
+            request_headers = self.headers
+            content_length = request_headers.get('Content-Length')
+            
+            str_cmd = self.rfile.read(int(content_length))
 
-        json_cmd = json.loads(str_cmd)
-        print(json_cmd)
+            json_cmd = json.loads(str_cmd)
+            request = json_to_lb(json_cmd)
+            print(request)
 
-        if( serial_stream ):
-            request = json_to_lb( json_cmd )
-            sync_serial_write( request )
-            line = sync_serial_read()
-            self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line))
+            if( serial_stream ):
+                sync_serial_write( request )
+                line = sync_serial_read()
+                self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line ))
 
-class HTTP_Server_Thread(Thread):
+class HTTP_Server_Thread(Thread):    
     def __init__(self):
         Thread.__init__(self)
         self.done = False
