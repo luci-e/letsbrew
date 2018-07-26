@@ -272,7 +272,7 @@ La Sapienza \\ % Your institution for the title page
 \begin{frame}
     \frametitle{Introduzione}
 Let's brew! - IoT project\\
-Bollitore IoT con controllo remoto.
+IoT Tee/Coffee machine with remote control and data reporting.
 \end{frame}
 \section{System}
 \begin{frame}
@@ -288,6 +288,19 @@ Bollitore IoT con controllo remoto.
         \item optocoupler
         \item triac to control the AC power
         \item 1000 Watts of power!
+    \end{itemize}
+
+\end{frame}
+\subsection{sensors}
+\begin{frame}
+    \frametitle{Sensors}
+
+    Voltage divider to measure temperature:
+    \begin{itemize}
+        \item NTC Thermistor 100k
+        \item ADC to sample the divider voltage
+        \item Resistor equations to find the NTC resistance
+        \item Beta equation to find the temperature
     \end{itemize}
 
 \end{frame}
@@ -337,6 +350,19 @@ Software features:
     \input{automaton}
 \end{frame}
 
+\subsection{Board code}
+\begin{frame}
+    \frametitle{Board code}
+
+    \begin{itemize}
+        \item Controller Class - C++
+        \item Request string parsing - C++
+        \item FreeRTOS interface - C
+        \item FreeRTOS thread functions - C
+        \item Hardware configuartion - C
+    \end{itemize}
+\end{frame}
+
 \section{Gateway}
 \subsection{Python server}
 
@@ -352,7 +378,22 @@ The python server enables both bluetooth functionality and acts as serial gatewa
 \end{frame}
 
 
+\subsection{ThingsBoard}
+\begin{frame}
+    \frametitle{ThingsBoard}
+    \begin{itemize}
+        \item Hosted on premises on remote server
+        \item Gathers data via MQTT
+        \item Displays information:
+        \item    \begin{itemize}
+                \item Temperature
+                \item Usage statistics
+                \item Time to operation completion
+                \item Power consumption statistics
+            \end{itemize}
 
+   \end{itemize}
+\end{frame}
 
 \section{Conclusione}
 
@@ -361,7 +402,7 @@ The python server enables both bluetooth functionality and acts as serial gatewa
     \frametitle{The end.}
     \begin{center}
 
-        Thank you!
+        \begin{Huge}        Thank you! \end{Huge}
 \end{center}
     \end{frame}
 
