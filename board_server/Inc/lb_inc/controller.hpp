@@ -1,6 +1,6 @@
 #include "HAL.hpp"
 #define NUMCHANNELS 2
-#define BUFSIZE 256
+#define BUFSIZE 512
 
 #include "stream_reader.hpp"
 #include "cmsis_os.h"

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <sstream>
 #include <regex>
+#include <stdio.h>
 #include "lb_protocol.hpp"
 namespace letsbrew{
 
@@ -34,84 +35,27 @@ using namespace std;
 	 * @return
 	 */
 	int lb_parse_header( const string &lb_header, lb_request_header &result ) {
-		static regex header_reg[5] = {
-			regex( "^ *ID *: *(\\d{1,10}) *"),
-			regex( "^ *USR *: *(\\d{1,10}) *" ),
-			regex( "^ *TIME *: *(\\d{1,10}) *" ),
-            regex( "^ *CMD *: *([A-z]+) *" ),
-            regex( "^")
-		};
-		
-		stringstream ss( lb_header );
-		int field = 0;
+	    char cmd_string[10];
+	    uint scanned = 0;
 
-		string line;
-		smatch matches;
-		string value;
+	    scanned = sscanf(lb_header.c_str(), "ID:%u\nUSR:%u\nTIME:%u\nCMD:%s\n", &result.id, &result.usr, &result.time, cmd_string);
+	    if( scanned != 4 ){
+	        return PARSE_BAD_HEADER;
+	    }
 
-		while ( getline( ss, line ) ) {
-			if ( regex_search( line, matches, header_reg[field] ) ) {
-				value = matches[1];
+	    string cmd_str = string(cmd_string);
 
-				switch ( field ) {
-					case 0:
-					{
-						result.id = stoi( value );
-						break;
-					}
+	    if( cmd_str == "BREW" ){
+	        result.CMD = BREW;
+	    }else if( cmd_str == "STATE"){
+	        result.CMD = STATE;
+	    }else if( cmd_str == "KEEPWARM"){
+	        result.CMD = KEEPWARM;
+        }else{
+            return PARSE_BAD_HEADER;
+        }
 
-
-					case 1:
-					{
-						result.usr = stoi( value );
-						break;
-					}
-
-					case 2:
-					{
-						result.time = stoi( value );
-						break;
-					}
-
-                    case 3:
-                    {
-                        if ( value == "BREW" ) {
-                            result.CMD = BREW;
-                        } else if ( value == "CANCEL" ) {
-                            result.CMD = CANCEL;
-                        } else if ( value == "STATE" ) {
-                            result.CMD = STATE;
-                        } else if ( value == "KEEPWARM" ) {
-                            result.CMD = KEEPWARM;
-                        } else {
-                            return PARSE_BAD_HEADER;
-                        }
-
-                        break;
-                    }
-
-                    case 4:
-                    {
-                        // Hello there
-                        break;
-                    }
-
-					default:
-					{
-						return PARSE_BAD_HEADER;
-					}
-				}
-
-
-			} else {
-				return PARSE_BAD_HEADER;
-			}
-			
-			field++;
-		}
-
-
-		return PARSE_OK;
+	    return PARSE_OK;
 	};
 
 	/**
@@ -121,81 +65,73 @@ using namespace std;
 	* @return
 	*/
 	int lb_parse_body( const string &lb_body, lb_request &result ) {
-		static regex field_reg( "^ *([A-z_\\d]+) *: *([A-z\\d]+) *" );
+	    uint scanned;
 
-		stringstream ss( lb_body );
+		switch( result.request_header.CMD ){
+		    case BREW:{
+		        char exec_time[12], h2o_amount[12], h2o_temp[12];
+		        scanned = sscanf(lb_body.c_str(), "EXEC_TIME:%s\nH2O_TEMP:%s\nH2O_AMOUNT:%s\n", exec_time, h2o_amount, h2o_temp );
+		        if( scanned != 3 ){
+		            return PARSE_BAD_HEADER;
+		        }
 
-		string line;
-		smatch matches;
-
-		while ( getline( ss, line ) ) {
-		    if( line.empty() ){
-                if ( regex_search( line, matches, field_reg ) ) {
-                    result.request_params[matches[1]] = matches[2];
-                } else {
-                    return PARSE_BAD_BODY;
-                }
+                result.request_params["EXEC_TIME"] = string(exec_time);
+                result.request_params["H2O_AMOUNT"] = string(h2o_amount);
+		        result.request_params["H2O_TEMP"] = string(h2o_temp);
+		        break;
 		    }
+
+		    case STATE:{
+		        return PARSE_OK;
+		    }
+
+		    case KEEPWARM:{
+                char duration[12];
+                scanned = sscanf(lb_body.c_str(), "DURATION:%s\n", duration);
+                if( scanned != 1 ){
+                    return PARSE_BAD_HEADER;
+                }
+
+                result.request_params["DURATION"] = string(duration);
+                break;
+		    }
+
+		    default:
+		        return PARSE_BAD_HEADER;
 		}
 
 		return PARSE_OK;
 	};
 
-	int lb_check_request( const lb_request &request ) {
 
-		map<string, string>::const_iterator it;
-		const map<string, string> &mapref = request.request_params;
+	int lb_parse_all(const string &lb_request_string, lb_request &result){
+	    uint scanned;
+	    char cmd[16];
+	    uint duration;
 
-		switch ( request.request_header.CMD ) {
-			case BREW:
-			{
-				/* Check time present h20 temp limit check H20 amount */
-				it = request.request_params.find( "EXEC_TIME" );
-				if ( it == mapref.end() ) {
-					return PARSE_BAD_BODY;
-				}
+	    const char * c_string = lb_request_string.c_str();
 
-				it = request.request_params.find( "H2O_TEMP" );
-				if ( it == mapref.end() ) {
-					return PARSE_BAD_BODY;
-				}
+	    scanned = sscanf(c_string, "%u %s %u\n", result.request_header.id, cmd, duration);
+	    if(scanned != 3){
+	        return PARSE_BAD_REQUEST;
+	    }
 
-				it = request.request_params.find( "H2O_AMOUNT" );
-				if ( it == mapref.end() ) {
-					return PARSE_BAD_BODY;
-				}
+	    string cmd_str = string(cmd);
+	    if( cmd_str == "BREW" ){
+	        result.request_header.CMD = BREW;
+	    }else if(cmd_str == "STATE"){
+            result.request_header.CMD = STATE;
+	    }else if(cmd_str == "KEEPWARM" ){
+            result.request_header.CMD = KEEPWARM;
+	    }else{
+	        return PARSE_BAD_REQUEST;
+	    }
 
-				break;
-			}
-			
-			case STATE:
-			{
-				/* I'm the ghost of simmetry keeping this here for completeness */
-				break;
-			}
+        result.request_params["DURATION"] = to_string((int) duration);
 
-			case CANCEL:
-			{
-				/* Maybe later */
-				break;
-			}
+        return PARSE_OK;
+	}
 
-			case KEEPWARM:
-			{
-				it = request.request_params.find( "DURATION" );
-				if ( it == mapref.end() ) {
-					return PARSE_BAD_BODY;
-				}
-
-				break;
-			}
-
-			default:
-				break;
-		}
-
-		return PARSE_OK;
-	};
 
 	/**
 	 * Takes a well formed request and puts the result in an lb_request struct
@@ -206,6 +142,10 @@ using namespace std;
 	int lb_parse_request( const string &lb_request_string, lb_request &result ){
 		string header_string;
 		string body_string;
+
+		if( lb_parse_all(lb_request_string, result) == PARSE_OK ){
+		    return PARSE_OK;
+		}
 
 		// Find the header
 		size_t head_end = lb_request_string.find( "\r\n" );
@@ -222,10 +162,6 @@ using namespace std;
 		}
 
 		if ( lb_parse_body( body_string, result ) != PARSE_OK ) {
-			return PARSE_BAD_BODY;
-		}
-
-		if ( lb_check_request( result ) != PARSE_OK ) {
 			return PARSE_BAD_BODY;
 		}
 

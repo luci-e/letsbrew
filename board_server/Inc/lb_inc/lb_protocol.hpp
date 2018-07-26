@@ -27,7 +27,8 @@ using namespace std;
 	enum PARSE_CODE{
 		PARSE_OK,
 		PARSE_BAD_HEADER,
-		PARSE_BAD_BODY
+		PARSE_BAD_BODY,
+		PARSE_BAD_REQUEST
 	};
 
 	struct lb_request_header{
@@ -55,20 +56,6 @@ using namespace std;
 		map<string, string> response_params;
 	};
 
-//	std::string& ltrim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-//		str.erase( 0, str.find_first_not_of( chars ) );
-//		return str;
-//	}
-//
-//	std::string& rtrim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-//		str.erase( str.find_last_not_of( chars ) + 1 );
-//		return str;
-//	}
-//
-//	std::string& trim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-//		return ltrim( rtrim( str, chars ), chars );
-//	}
-
 	/**
 	 * Takes a well formed request_header and puts the result in the result struct
 	 * @param lb_request_header
@@ -84,7 +71,6 @@ using namespace std;
 	* @return
 	*/
 	int lb_parse_body( const string &lb_body, lb_request &result );
-	int lb_check_request( const lb_request &request ) ;
 
 	/**
 	 * Takes a well formed request and puts the result in an lb_request struct

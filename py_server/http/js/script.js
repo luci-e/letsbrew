@@ -9,15 +9,25 @@ class Letsbrew {
   
   request() {
     let options = {
-        acceptAllDevices : true,
-        optionalServices : ['d973f2e0-b19e-11e2-9e96-0800200c9a66']
+        filters : [{
+        	services : ['d973f2e0-b19e-11e2-9e96-0800200c9a66']
+        }]
     };
 
     return navigator.bluetooth.requestDevice(options)
     .then(device => {
       this.device = device;
       this.device.addEventListener('gattserverdisconnected', this.onDisconnected);
-    });
+      return this.connect();
+    }).then( server => { return server.getPrimaryService('d973f2e0-b19e-11e2-9e96-0800200c9a66'); } )
+	  .then( service => {
+	  	// Save the characteristic as write and read buffer
+	  	service.getCharacteristic('d973f2e1-b19e-11e2-9e96-0800200c9a66').then( characteristic => {letsbrew.brewing_tx_buffer = characteristic; } ).catch(error => { console.log(error) });
+		service.getCharacteristic('d973f2e2-b19e-11e2-9e96-0800200c9a66').then( characteristic => {letsbrew.brewing_rx_buffer = characteristic; } ).catch(error => { console.log(error) });
+
+		console.log(letsbrew);
+	  })
+	  .catch(error => { console.log(error) });;
   }
   
   connect() {
@@ -38,7 +48,14 @@ class Letsbrew {
 	if (!this.device) {
       return Promise.reject('Device is not connected.');
     }
-    return this.brewing_tx_buffer.writeValue((new TextEncoder()).encode(command));
+
+	var asciiKeys = [];
+	for (var i = 0; i < string.length; i ++)
+	  asciiKeys.push(string[i].charCodeAt(0));
+
+  	asciiKeys.push('\0');
+
+    return this.brewing_tx_buffer.writeValue(asciiKeys);
   }
 
   onDisconnected() {
@@ -52,7 +69,8 @@ var letsbrew;
 // Sends the form data and reads the result from the server asynchronously
 function send_data_web( form_id ) {
 	// Put the form into a nice JSON
-	command = build_command( form_id );
+	command = build_command(form_id);
+	console.log(command);
 
 	$( form_id ).on( 'submit', function( event ){ 
 		event.preventDefault();
@@ -60,7 +78,7 @@ function send_data_web( form_id ) {
 
 	var jqxhr = $.post( 
 		$(form_id).attr('action'),
-		command,
+		JSON.stringify(command),
 		function( result ){ 
 			console.log(result); 
 		},
@@ -72,6 +90,49 @@ function send_data_web( form_id ) {
 	return false;
 }
 
+function json_to_lb( json_cmd ){
+	var lb_cmd = "";
+
+// 	lb_cmd += "ID : " + json_cmd["ID"] + "\n";
+// 	lb_cmd += "USR : " + json_cmd["USR"] + "\n";
+// 	lb_cmd += "TIME : " + json_cmd["TIME"] + "\n";
+// 	lb_cmd += "CMD : " + json_cmd["CMD"] + "\n";
+// 	lb_cmd += "\r\n"
+
+// 	switch( json_cmd["CMD"]){
+// 		case 'BREW':
+// 			lb_cmd += "EXEC_TIME : " + json_cmd["EXEC_TIME"] + "\n";
+// 			lb_cmd += "H2O_TEMP : " + json_cmd["H2O_TEMP"] + "\n";
+// 			lb_cmd += "H2O_AMOUNT : " + json_cmd["H2O_AMOUNT"] + "\n";
+// 			break;
+// 		case 'KEEPWARM':
+// 			lb_cmd += "DURATION : " + json_cmd["DURATION"] + "\n";
+// 			break;
+// 		case 'STATE':
+// 			lb_cmd += "\n";
+// 			break;
+// 	}
+
+
+
+	lb_cmd += json_cmd["ID"] + " ";
+ 	lb_cmd += json_cmd["CMD"] + " ";
+
+	switch( json_cmd["CMD"]){
+		case 'BREW':
+			lb_cmd += json_cmd["EXEC_TIME"] + "\0";
+			break;
+		case 'KEEPWARM':
+			lb_cmd += json_cmd["DURATION"] + "\0";
+			break;
+		case 'STATE':
+			lb_cmd += "\0";
+			break;
+	}
+
+	return lb_cmd;
+}
+
 // Sends the form data and reads the result from the bt asynchronously
 function send_data_bt( form_id ) {
 	// Put the form into a nice JSON
@@ -81,18 +142,13 @@ function send_data_bt( form_id ) {
 		event.preventDefault();
 	});
 
-	letsbrew.send_cmd( command)
+	letsbrew.send_cmd( json_to_lb(command) );
 
 	return false;
 }
 
 function build_command( form_id ){
 	var cmd_data = {};
-// 	var fields = $(form_id).serializeArray();
-// 	$.each( fields, function( i, pair ){
-// 		cmd_data[pair.name] = ( isNaN( Number(pair.value) ) ? pair.value : Number(pair.value));
-// 	});
-
 
 	cmd_data["ID"] = parseInt($(form_id).find('[id^="request_id"]').val());
 	cmd_data["USR"] = parseInt($(form_id).find('[id^="user_id"]').val());
@@ -112,7 +168,7 @@ function build_command( form_id ){
 			break;
 	}
 
- 	return JSON.stringify(cmd_data, null, 2);
+ 	return cmd_data;
 }
 
 // Show the divs in the given form with the given id, hide the others
@@ -166,16 +222,6 @@ function init_script(){
 
 	$('#find_brewy').on('click', event => {
 	  letsbrew.request()
-	  .then( device => letsbrew.connect())
-	  .then( server => { return server.getPrimaryService('d973f2e0-b19e-11e2-9e96-0800200c9a66'); } )
-	  .then( service => {
-	  	// Save the characteristic as write and read buffer
-	  	service.getCharacteristic('d973f2e1-b19e-11e2-9e96-0800200c9a66').then( characteristic => {letsbrew.brewing_tx_buffer = characteristic; } ).catch(error => { console.log(error) });
-		service.getCharacteristic('d973f2e2-b19e-11e2-9e96-0800200c9a66').then( characteristic => {letsbrew.brewing_rx_buffer = characteristic; } ).catch(error => { console.log(error) });
-
-		console.log(letsbrew);
-	  })
-	  .catch(error => { console.log(error) });
 	});
 
 

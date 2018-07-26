@@ -29,9 +29,10 @@ class stream_reader{
 public:
 	bool message_complete = false;
 	//string message_buffer;
-	char message_buffer[MESSAGEBUFSIZE];
+	string message_buffer;
+
 	stream_reader( size_t max_message_size ){
-		//message_buffer.resize( max_message_size );
+		message_buffer.resize( max_message_size );
 		max_length = MESSAGEBUFSIZE;
 		current_length = 0;
 	}

@@ -154,6 +154,7 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
+
   MX_USART2_UART_Init();
   MX_NVIC_Init();
 

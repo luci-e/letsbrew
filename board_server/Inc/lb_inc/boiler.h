@@ -3,8 +3,8 @@
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f401xe.h"
 
-#define BOILERHEATERPORT GPIOA
-#define BOILERHEATERPIN GPIO_PIN_5
+#define BOILERHEATERPORT GPIOB
+#define BOILERHEATERPIN GPIO_PIN_0
 
 
 #ifdef __cplusplus
