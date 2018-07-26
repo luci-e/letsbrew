@@ -79,7 +79,7 @@ class brew_thread(Thread):
         self.done = True
     def run(self):
         while(True):
-            brew_request = '1 BREW 10\0'
+            brew_request = build_request('B')
             print( sync_serial_read())
             sync_serial_write( brew_request )
             time.sleep(0.5)
@@ -88,16 +88,16 @@ def json_to_lb( json_cmd ):
     lb_cmd = "";
 
     lb_cmd += '"ID" : {}\n\
-    "USR" : {}\n\
-    "TIME" : {}\n\
-    "CMD" : "{}"\n'.format(json_cmd["ID"], json_cmd["USR"], json_cmd["TIME"], json_cmd["CMD"])
+"USR" : {}\n\
+"TIME" : {}\n\
+"CMD" : "{}"\n'.format(json_cmd["ID"], json_cmd["USR"], json_cmd["TIME"], json_cmd["CMD"])
 
     CMD = json_cmd["CMD"];
 
     if( CMD == 'BREW'):
             lb_cmd += '"H2O_AMOUNT" : {}\n\
-            "H2O_TEMP" : {}\n\
-            "EXEC_TIME" : {}\n\0'.format(json_cmd["H2O_AMOUNT"], json_cmd["H2O_TEMP"], json_cmd["EXEC_TIME"])
+"H2O_TEMP" : {}\n\
+"EXEC_TIME" : {}\n\0'.format(json_cmd["H2O_AMOUNT"], json_cmd["H2O_TEMP"], json_cmd["EXEC_TIME"])
     elif ( CMD == 'KEEPWARM'):
             lb_cmd += '"DURATION" : {}\n\0'.format(json_cmd["DURATION"])
     elif (CMD ==  'STATE'):
@@ -187,7 +187,7 @@ class Serial_poller_Thread(Thread):
             try:
                 serial_lock.acquire()
 
-                state_request = '1 STATE 1\0'
+                state_request = build_request('S')
                 serial_stream.write(bytes(state_request,'ascii'))
                 serial_stream.flush()
             except:
@@ -320,8 +320,8 @@ def main():
 
             if(cmd is None):
                 if line == '\n':
-                    line = '0 BREW 0\n'
-                    sync_serial_write( line + '\0')
+                    request = build_request('B')
+                    sync_serial_write( request)
             else:
                 sync_serial_write( cmd )
 
