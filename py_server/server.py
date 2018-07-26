@@ -18,8 +18,6 @@ serial_lock = threading.Lock()
 
 import paho.mqtt.client as mqtt
 
-
-
 def process( splitted_list):
     err = splitted_list[0].partition(' ')
     device_status = {}
@@ -112,15 +110,11 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
     def do_POST( self ):
         request_path = self.path
         
-        # print("\n----- Request Start ----->\n")
-        # print(request_path)
-        
         request_headers = self.headers
         content_length = request_headers.get('Content-Length')
         
         str_cmd = self.rfile.read(int(content_length))
-        # print(str_cmd)
-        # print("<----- Request End -----\n")
+        print(str_cmd)
 
         json_cmd = json.loads(str_cmd)
         print(json_cmd)

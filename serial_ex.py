@@ -12,23 +12,21 @@ BAUDRATE = 115200
 serial_lock = threading.Lock()
 
 brew_request = \
-    'ID:1\nUSR:1\nTIME:1\nCMD:BREW\n\r\nH2O_TEMP:3\nEXEC_TIME:0\nH2O_AMOUNT:100\n\0'
+    '"ID":1\n"USR":1\n"TIME":1\n"CMD":"BREW"\n"H2O_TEMP":3\n"EXEC_TIME":0\n"H2O_AMOUNT":100\n\0'
 
 state_request = \
-    'ID:1\nUSR:1\nTIME:1\nCMD:STATE\r\n\0'
+    '"ID":1\n"USR":1\n"TIME":1\n"CMD":"STATE"\n\0'
 
 keepwarm_request = \
-    'ID:1\nUSR:1\nTIME:1\nCMD:BREW\n\r\nDURATION:10\n\0'
-
-short_request = '01 BREW 10\n\0'
+    '"ID":1\n"USR":1\n"TIME":1\n"CMD":"BREW"\n"DURATION":10\n\0'
 
 
-#requests = [brew_request, state_request, keepwarm_request, short_request]
-requests = [short_request]
+
+requests = [brew_request, state_request, keepwarm_request]
 
 def sync_serial_read():
     serial_lock.acquire()
-    print( serial_stream.readline() )
+    print( serial_stream.readline().decode('ascii') )
     serial_lock.release()
 
 def sync_serial_write( data ):
@@ -48,7 +46,8 @@ if __name__ == "__main__":
 
 	while True:
 		sync_serial_write( requests[counter] )
-		#counter = (counter + 1) % len(requests)
+		counter = (counter + 1) % len(requests)
 		sync_serial_read()
-		time.sleep(0.5)
+		sync_serial_read()
+		time.sleep(2)
 		

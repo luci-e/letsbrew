@@ -10,99 +10,11 @@
 #include <regex>
 #include <stdio.h>
 #include "lb_protocol.hpp"
+#include "uart_support.h"
+
 namespace letsbrew{
 
 using namespace std;
-
-	std::string& ltrim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-		str.erase( 0, str.find_first_not_of( chars ) );
-		return str;
-	}
-
-	std::string& rtrim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-		str.erase( str.find_last_not_of( chars ) + 1 );
-		return str;
-	}
-
-	std::string& trim( std::string& str, const std::string& chars = "\t\n\v\f\r " ) {
-		return ltrim( rtrim( str, chars ), chars );
-	}
-
-	/**
-	 * Takes a well formed request_header and puts the result in the result struct
-	 * @param lb_request_header
-	 * @param result
-	 * @return
-	 */
-	int lb_parse_header( const string &lb_header, lb_request_header &result ) {
-	    char cmd_string[10];
-	    uint scanned = 0;
-
-	    scanned = sscanf(lb_header.c_str(), "ID:%u\nUSR:%u\nTIME:%u\nCMD:%s\n", &result.id, &result.usr, &result.time, cmd_string);
-	    if( scanned != 4 ){
-	        return PARSE_BAD_HEADER;
-	    }
-
-	    string cmd_str = string(cmd_string);
-
-	    if( cmd_str == "BREW" ){
-	        result.CMD = BREW;
-	    }else if( cmd_str == "STATE"){
-	        result.CMD = STATE;
-	    }else if( cmd_str == "KEEPWARM"){
-	        result.CMD = KEEPWARM;
-        }else{
-            return PARSE_BAD_HEADER;
-        }
-
-	    return PARSE_OK;
-	};
-
-	/**
-	* Takes a well formed request_header and puts the result in the result struct
-	* @param lb_body
-	* @param result
-	* @return
-	*/
-	int lb_parse_body( const string &lb_body, lb_request &result ) {
-	    uint scanned;
-
-		switch( result.request_header.CMD ){
-		    case BREW:{
-		        char exec_time[12], h2o_amount[12], h2o_temp[12];
-		        scanned = sscanf(lb_body.c_str(), "EXEC_TIME:%s\nH2O_TEMP:%s\nH2O_AMOUNT:%s\n", exec_time, h2o_amount, h2o_temp );
-		        if( scanned != 3 ){
-		            return PARSE_BAD_HEADER;
-		        }
-
-                result.request_params["EXEC_TIME"] = string(exec_time);
-                result.request_params["H2O_AMOUNT"] = string(h2o_amount);
-		        result.request_params["H2O_TEMP"] = string(h2o_temp);
-		        break;
-		    }
-
-		    case STATE:{
-		        return PARSE_OK;
-		    }
-
-		    case KEEPWARM:{
-                char duration[12];
-                scanned = sscanf(lb_body.c_str(), "DURATION:%s\n", duration);
-                if( scanned != 1 ){
-                    return PARSE_BAD_HEADER;
-                }
-
-                result.request_params["DURATION"] = string(duration);
-                break;
-		    }
-
-		    default:
-		        return PARSE_BAD_HEADER;
-		}
-
-		return PARSE_OK;
-	};
-
 
 	int lb_parse_all(const string &lb_request_string, lb_request &result){
 	    uint scanned;
@@ -133,39 +45,91 @@ using namespace std;
 	}
 
 
+	LB_CMD string_to_lb_cmd( const string &str){
+	    if( str == "BREW" ) return BREW;
+        if( str == "STATE" ) return STATE;
+        if( str == "KEEPWARM" ) return BREW;
+        return NO_CMD;
+	}
+
 	/**
 	 * Takes a well formed request and puts the result in an lb_request struct
 	 * @param lb_request
 	 * @param result
 	 * @return
 	 */
-	int lb_parse_request( const string &lb_request_string, lb_request &result ){
-		string header_string;
-		string body_string;
+	int lb_parse_request( const string lb_request_string, lb_request &result ){
+	    enum PARSER_STATE{
+	        PARSE_HEADER,
+	        PARSE_BODY,
+	        PARSE_ERROR
+	    }parser_state;
+
+	    parser_state = PARSE_HEADER;
+
+	    uint parser_line_header = 0;
+
+	    regex header_reg[] = {
+	            regex("\\s*\"ID\"\\s*:\\s*(\\d+)\\s*"),
+                regex("\\s*\"USR\"\\s*:\\s*(\\d+)\\s*"),
+                regex("\\s*\"TIME\"\\s*:\\s*(\\d+)\\s*"),
+                regex("\\s*\"CMD\"\\s*:\\s*\"(.+)\"\\s*")
+	    };
+
+	    regex body_regex = regex("\\s*\"(.+)\"\\s*:\\s*(.+)\\s*");
+
+	    smatch protocol_line;
+	    stringstream request_stream = stringstream(lb_request_string);
+	    string line;
+
+	    while (getline(request_stream, line)) {
+	        PRINTF("%s\n", line.c_str());
+	        switch(parser_state){
+
+	            case PARSE_HEADER:{
+	                if( regex_match( line, protocol_line, header_reg[parser_line_header]) ){
+	                    switch( parser_line_header){
+	                        case 0:
+	                            result.request_header.id = (uint) stoi(protocol_line[1]);
+	                            parser_line_header++;
+	                            break;
+	                        case 1:
+                                result.request_header.usr = (uint) stoi(protocol_line[1]);
+                                parser_line_header++;
+	                            break;
+	                        case 2:
+                                result.request_header.time = (uint) stoi(protocol_line[1]);
+                                parser_line_header++;
+	                            break;
+	                        case 3:
+                                result.request_header.CMD = string_to_lb_cmd(protocol_line[1]);
+                                parser_line_header++;
+	                            parser_state = PARSE_BODY;
+	                            break;
+	                    }
+	                }
+	                break;
+	            }
+
+	            case PARSE_BODY:{
+	                if( regex_match( line, protocol_line, body_regex) ){
+	                    result.request_params[protocol_line[1]] = protocol_line[2];
+	                }
+	                break;
+	            }
+
+	        }
+	    }
+
+	    if( (parser_line_header == 4) && (result.request_header.CMD != NO_CMD) ){
+	        return PARSE_OK;
+	    }
 
 		if( lb_parse_all(lb_request_string, result) == PARSE_OK ){
 		    return PARSE_OK;
 		}
 
-		// Find the header
-		size_t head_end = lb_request_string.find( "\r\n" );
-		if( head_end == string::npos ){
-			return PARSE_BAD_HEADER;
-		} else {
-			header_string = lb_request_string.substr( 0, head_end );
-		}
-
-		body_string = lb_request_string.substr( head_end + 2, string::npos );
-
-		if ( lb_parse_header( header_string, result.request_header ) != PARSE_OK ) {
-			return PARSE_BAD_HEADER;
-		}
-
-		if ( lb_parse_body( body_string, result ) != PARSE_OK ) {
-			return PARSE_BAD_BODY;
-		}
-
-		return PARSE_OK;
+		return PARSE_BAD_REQUEST;
 	};
 
 }
