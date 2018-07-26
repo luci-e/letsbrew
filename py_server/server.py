@@ -16,6 +16,9 @@ ROOT_DIRECTORY = './http'
 serial_stream = None
 serial_lock = threading.Lock()
 
+qlock = threading.Lock()
+queue = []
+qsem = threading.Semaphore(0)
 import paho.mqtt.client as mqtt
 
 client = None
@@ -48,7 +51,7 @@ def serial_init_linux():
         try:
             SERIAL_PORT = sys.argv[1]
             serial_stream = serial.Serial(port=SERIAL_PORT, baudrate=BAUDRATE, parity=serial.PARITY_NONE,
-                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=5)
+                            stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1)
         except Exception:
             print("Could not open serial_stream")
 
@@ -133,7 +136,56 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
             self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line))
 
 
+class Serial_reader_Thread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.done = False
 
+    def stop(self):
+        self.done = True
+    def run(self):
+        print("serial reader started")
+        while(not self.done):
+            time.sleep(0.1)
+            try:
+                serial_lock.acquire()
+                line = serial_stream.readline()
+                if (len(line)>0):
+                    print(line)
+                qlock.acquire()
+                queue.append(line)
+                qsem.release()
+
+            except:
+                print("exception in serial thread")
+
+            finally:
+                qlock.release()
+                serial_lock.release()
+
+class Serial_poller_Thread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.done = False
+
+    def stop(self):
+        self.done = True
+    def run(self):
+        print("serial poller started")
+        while(not self.done):
+            time.sleep(4)
+            try:
+                serial_lock.acquire()
+
+                state_request = '1 STATE 1\0'
+                serial_stream.write(bytes(state_request,'ascii'))
+                serial_stream.flush()
+            except:
+                print("exception in serial writer")
+
+            finally:
+                serial_lock.release()
+ 
 
 class TBThread(Thread):
     def __init__(self):
@@ -143,19 +195,21 @@ class TBThread(Thread):
     def stop(self):
         self.done = True
     def run(self):
+        print("Thingsboard reporter started")
         while(not self.done):
-            time.sleep(4)
             try:
-                serial_lock.acquire()
+                #serial_lock.acquire()
 
-                state_request = '1 STATE 1\0'
-                serial_stream.write(bytes(state_request,'ascii'))
-                serial_stream.flush()
-                line = serial_stream.readline()
-                print(line)
+                #state_request = '1 STATE 1\0'
+                #serial_stream.write(bytes(state_request,'ascii'))
+                #serial_stream.flush()
+                #line = serial_stream.readline()
+                #print(line)
                 #serial_lock.release()
                 #continue
-
+                qsem.acquire()
+                qlock.acquire()
+                line = queue.pop()
                 splitted = line.decode('ascii').split(',')
                 if len(splitted)==8:
                     try:
@@ -175,8 +229,7 @@ class TBThread(Thread):
                 
 
             finally:
-                serial_lock.release()
-
+                qlock.release()
 
 
 
@@ -185,6 +238,9 @@ def main():
     global client
     os.chdir(ROOT_DIRECTORY)
     serial_init()
+    srt = Serial_reader_Thread()
+    srt.start()
+    
 
     if( '-start_thingsboard' in sys.argv ):
         global tbthread
@@ -213,6 +269,8 @@ def main():
         client.connect(THINGSBOARD_HOST, 1883, 60)
 
         client.loop_start()
+        spt = Serial_poller_Thread()
+        spt.start()
         tbthread.start()
     if( '--interactive' in sys.argv):
         while(True):
