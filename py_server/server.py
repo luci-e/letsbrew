@@ -276,12 +276,14 @@ def main():
         while(True):
             line = sys.stdin.readline()
             print(line)
+            if line == '\n':
+                line = '0 BREW 0\n'
             sync_serial_write( line + '\0')
 
     if( '-start_server' in sys.argv ):
 
-        bt = brew_thread()
-        bt.start()
+        #bt = brew_thread()
+        #bt.start()
 
         with socketserver.TCPServer(("", PORT), lb_request_handler) as httpd:
             print("serving at port", PORT)
