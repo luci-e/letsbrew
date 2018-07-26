@@ -70,7 +70,7 @@ var letsbrew;
 function send_data_web( form_id ) {
 	// Put the form into a nice JSON
 	command = build_command(form_id);
-	console.log(command);
+	console.log(JSON.stringify(command));
 
 	$( form_id ).on( 'submit', function( event ){ 
 		event.preventDefault();
@@ -90,49 +90,6 @@ function send_data_web( form_id ) {
 	return false;
 }
 
-function json_to_lb( json_cmd ){
-	var lb_cmd = "";
-
-// 	lb_cmd += "ID : " + json_cmd["ID"] + "\n";
-// 	lb_cmd += "USR : " + json_cmd["USR"] + "\n";
-// 	lb_cmd += "TIME : " + json_cmd["TIME"] + "\n";
-// 	lb_cmd += "CMD : " + json_cmd["CMD"] + "\n";
-// 	lb_cmd += "\r\n"
-
-// 	switch( json_cmd["CMD"]){
-// 		case 'BREW':
-// 			lb_cmd += "EXEC_TIME : " + json_cmd["EXEC_TIME"] + "\n";
-// 			lb_cmd += "H2O_TEMP : " + json_cmd["H2O_TEMP"] + "\n";
-// 			lb_cmd += "H2O_AMOUNT : " + json_cmd["H2O_AMOUNT"] + "\n";
-// 			break;
-// 		case 'KEEPWARM':
-// 			lb_cmd += "DURATION : " + json_cmd["DURATION"] + "\n";
-// 			break;
-// 		case 'STATE':
-// 			lb_cmd += "\n";
-// 			break;
-// 	}
-
-
-
-	lb_cmd += json_cmd["ID"] + " ";
- 	lb_cmd += json_cmd["CMD"] + " ";
-
-	switch( json_cmd["CMD"]){
-		case 'BREW':
-			lb_cmd += json_cmd["EXEC_TIME"] + "\0";
-			break;
-		case 'KEEPWARM':
-			lb_cmd += json_cmd["DURATION"] + "\0";
-			break;
-		case 'STATE':
-			lb_cmd += "\0";
-			break;
-	}
-
-	return lb_cmd;
-}
-
 // Sends the form data and reads the result from the bt asynchronously
 function send_data_bt( form_id ) {
 	// Put the form into a nice JSON
@@ -142,7 +99,7 @@ function send_data_bt( form_id ) {
 		event.preventDefault();
 	});
 
-	letsbrew.send_cmd( json_to_lb(command) );
+	letsbrew.send_cmd( JSON.stringify(command, null, 2) );
 
 	return false;
 }

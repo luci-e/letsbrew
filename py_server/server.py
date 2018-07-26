@@ -7,6 +7,7 @@ import serial
 import time
 import threading
 import sys
+import random
 from threading import Thread
 SERIAL_PORT = ""
 BAUDRATE = 115200
@@ -128,6 +129,19 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
             line = sync_serial_read()
             self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line))
 
+class HTTP_Server_Thread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.done = False
+
+    def stop(self):
+        self.done = True
+
+    def run(self):
+        print('HTTP Server started')
+        with socketserver.TCPServer(("", PORT), lb_request_handler) as httpd:
+            print("serving at port", PORT)
+            httpd.serve_forever()
 
 class Serial_reader_Thread(Thread):
     def __init__(self):
@@ -225,6 +239,26 @@ class TBThread(Thread):
                 qlock.release()
 
 
+def build_request( command ):
+    cmd = ""
+
+    cmd += '"ID":{}\n'.format(random.randint(0, 32000))
+    cmd += '"USR":{}\n'.format(random.randint(0, 32000))
+    cmd += '"TIME":{}\n'.format(random.randint(0, 32000))
+
+    if(  'B' in command ):
+        cmd += '"CMD":"BREW"\n'
+        cmd += '"H2O_TEMP":3\n'
+        cmd += '"H2O_AMOUNT":3\n'
+    elif('K' in command):
+        cmd += '"CMD":"KEEPWARM"\n'
+        cmd += '"DURATION":3\n'
+    elif('S' in command):
+        cmd += '"CMD":"STATE"\n'
+    else:
+        return None
+
+    return cmd+'\0'
 
 tbthread = None
 def main():
@@ -235,7 +269,7 @@ def main():
     srt.start()
     
 
-    if( '-start_thingsboard' in sys.argv ):
+    if( '--start_thingsboard' in sys.argv ):
         global tbthread
 
 
@@ -265,22 +299,26 @@ def main():
         spt = Serial_poller_Thread()
         spt.start()
         tbthread.start()
+
+    if( '--start_server' in sys.argv ):
+
+        http_thread = HTTP_Server_Thread()
+        http_thread.start()
+
     if( '--interactive' in sys.argv):
+
+        print("Starting interactive shell...")
+
         while(True):
             line = sys.stdin.readline()
-            print(line)
-            if line == '\n':
-                line = '0 BREW 0\n'
-            sync_serial_write( line + '\0')
+            cmd = build_request(line)
 
-    if( '-start_server' in sys.argv ):
-
-        #bt = brew_thread()
-        #bt.start()
-
-        with socketserver.TCPServer(("", PORT), lb_request_handler) as httpd:
-            print("serving at port", PORT)
-            httpd.serve_forever()
+            if(cmd is None):
+                if line == '\n':
+                    line = '0 BREW 0\n'
+                    sync_serial_write( line + '\0')
+            else:
+                sync_serial_write( cmd )
 
 if __name__ == '__main__':
     main()
