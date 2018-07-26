@@ -271,18 +271,84 @@ La Sapienza \\ % Your institution for the title page
 \subsection{}
 \begin{frame}
     \frametitle{Introduzione}
-Bollitore Sama!
+Let's brew! - IoT project\\
+Bollitore IoT con controllo remoto.
 \end{frame}
+\section{System}
+\begin{frame}
+    \frametitle{System overview}
+    
+    \begin{itemize}
+        \item STM32F4 board controls the boiler
+        \item PC running python server as gateway
+        \item ThingsBoard on remote server
+    \end{itemize}
+    Hardware:
+    \begin{itemize}
+        \item optocoupler
+        \item triac to control the AC power
+        \item 1000 Watts of power!
+    \end{itemize}
 
+\end{frame}
 \subsection{circuit}
 \begin{frame}
     \frametitle{circuit}
     \includegraphics[width=\textwidth]{eagle.png}
 \end{frame}
+\subsection{Software}
+\begin{frame}
+    \frametitle{circuit}
+Software features:
+\begin{itemize}
+    \item FreeRTOS
+        \begin{itemize}
+            \item threads
+            \item timers
+            \item mutexes
+        \end{itemize}
+    \item  HAL
+        \begin{itemize}
+            \item UART - DMA
+            \item Bluetooth
+            \item ADC
+            \item GPIO
+        \end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Server}
+\subsection{description}
+\begin{frame}
+    \frametitle{HTCPCP Server}
+    The board implements a HTTP - like stateless server.
+    The server can handle the following requests:
+    \begin{itemize}
+        \item Brew
+        \item KeepWarm
+        \item Status
+        \item Abort
+    \end{itemize}
+
+\end{frame}
 \subsection{server fsa}
 \begin{frame}
     \frametitle{server fsa}
     \input{automaton}
+\end{frame}
+
+\section{Gateway}
+\subsection{Python server}
+
+\begin{frame}
+    \frametitle{Python server}
+
+The python server enables both bluetooth functionality and acts as serial gateway to push information to ThingsBoard.
+\begin{itemize}
+    \item Uses MQTT
+    \item Polls via serial using Status command
+\end{itemize}
+
 \end{frame}
 
 
