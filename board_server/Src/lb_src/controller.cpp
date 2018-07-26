@@ -10,6 +10,9 @@
 #include "lb_service.h"
 #include "globals.h"
 #include <math.h>
+#define seconds_to_ticks(x) x * 1
+#define ticks_to_seconds(x)  x
+
 
 #define TIMETOBREW 60
 #define BREWSTARTTEMP 80
@@ -17,10 +20,9 @@
 #define KWKEEPABOVE 60
 #define KWKEEPBELOW 65
 #define KWMINTOSTART 50
+#define MAXTICKSINPREHEAT seconds_to_ticks(10)
 
 
-#define seconds_to_ticks(x) x * 1
-#define ticks_to_seconds(x)  x
 
 using namespace std;
 
@@ -101,6 +103,8 @@ void Controller::compile_detailed_response( uint channel ){
 			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)), hal->get_temperature(), ticks_to_seconds(ticks_to_go),  channels[channel].message_buffer.c_str()  );
 }
 
+
+
 void Controller::parse(unsigned int channel,char new_character){
 	if(channel>=NUMCHANNELS){
 		return;
@@ -168,6 +172,7 @@ void Controller::parse(unsigned int channel,char new_character){
 	        break;
 	    }
 	}
+
 
 }
 
@@ -265,6 +270,7 @@ AUTOMERRORS Controller::brew(){
                 state =BREWPREHEATING;
                 brews+=1;
                 last_error =NOERROR;
+                ticks_to_go = MAXTICKSINPREHEAT;
             }
             break;
         case BREWPREHEATING:
@@ -303,7 +309,9 @@ void Controller::tick(){
         	hal->set_blink_mode(1);
         	heater_on_seconds += ticks_to_seconds(1);
             hal->start_heater();
-            if(hal->get_temperature() > BREWSTARTTEMP){
+            ticks_to_go-=1;
+
+            if(hal->get_temperature() > BREWSTARTTEMP || ticks_to_go ==0){
                 state = BREWBREWING;
                 ticks_to_go = seconds_to_ticks(TIMETOBREW);
             }
