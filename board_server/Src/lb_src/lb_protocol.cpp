@@ -89,7 +89,7 @@ using namespace std;
 	    string line;
 
 	    while (getline(request_stream, line)) {
-	        //PRINTF("%s\n", line.c_str());
+
 	        switch(parser_state){
 
 	            case PARSE_HEADER:{
