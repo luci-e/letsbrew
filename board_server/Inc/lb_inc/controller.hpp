@@ -4,6 +4,7 @@
 
 #include "stream_reader.hpp"
 #include "cmsis_os.h"
+#include "lb_protocol.hpp"
 
 enum AUTOMSTATE{
     IDLE,
@@ -43,8 +44,8 @@ class Controller{
         void timer_expired();
         void respond(unsigned int channel, char * msg);
         char response_message_buffer[2][BUFSIZE];
-        void compile_response( uint channel );
-        void compile_detailed_response( uint channel );
+        void compile_response( uint channel, lb_request lbr );
+        void compile_detailed_response( uint channel, lb_request lbr );
         int error_to_code(AUTOMERRORS err);
         float seconds_to_watts(float seconds);
 

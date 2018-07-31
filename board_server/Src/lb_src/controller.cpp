@@ -14,15 +14,13 @@
 #define ticks_to_seconds(x)  x
 
 
-#define TIMETOBREW 60
+#define TIMETOBREW 60*4
 #define BREWSTARTTEMP 80
 #define BREWMAXTOSTART 50
 #define KWKEEPABOVE 60
-#define KWKEEPBELOW 65
+#define KWKEEPBELOW 61
 #define KWMINTOSTART 50
 #define MAXTICKSINPREHEAT seconds_to_ticks(10)
-
-
 
 using namespace std;
 
@@ -88,19 +86,19 @@ int Controller::error_to_code(AUTOMERRORS err) {
 	}
 }
 
-void Controller::compile_response( uint channel){
-	snprintf( &response_message_buffer[channel][0], BUFSIZE, "%d %s, %s, %s\n", error_to_code(last_error), last_err_to_str(),state_to_str(), channels[channel].message_buffer.c_str() );
+void Controller::compile_response( uint channel, lb_request lbr){
+	snprintf( &response_message_buffer[channel][0], BUFSIZE, "%lu %d %s, %s\n", lbr.request_header.id, error_to_code(last_error), last_err_to_str(),state_to_str());
 }
 
 inline float Controller::seconds_to_watts(float seconds){
 	return seconds * 1000.0/3600.0;
 }
 
-void Controller::compile_detailed_response( uint channel ){
+void Controller::compile_detailed_response( uint channel, lb_request lbr ){
 	snprintf( &response_message_buffer[channel][0], BUFSIZE,\
-			"%d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used, %d temperature, %d seconds to go %s\n",\
-			error_to_code(last_error), last_err_to_str(),state_to_str(),\
-			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)), hal->get_temperature(), ticks_to_seconds(ticks_to_go),  channels[channel].message_buffer.c_str()  );
+			"%lu %d %s, %s, %d brews, %d seconds in keepwarm, %d seconds heater on, %d Watts used, %d temperature, %d seconds to go\n",\
+			lbr.request_header.id, error_to_code(last_error), last_err_to_str(),state_to_str(),\
+			brews, (int)round((double)seconds_in_keepwarm),(int)round((double)heater_on_seconds),(int)round(seconds_to_watts(heater_on_seconds)), hal->get_temperature(), ticks_to_seconds(ticks_to_go)  );
 }
 
 
@@ -124,25 +122,25 @@ void Controller::parse(unsigned int channel,char new_character){
                 case BREW:
                 {
                         brew();
-                        compile_response(channel);
+                        compile_response(channel, lbr);
                         break;
                 }
                 case CANCEL:
                 {
                         abort();
-                        compile_response(channel);
+                        compile_response(channel, lbr);
                         break;
                 }
                 case(STATE):
                 {
-                        compile_detailed_response(channel);
+                        compile_detailed_response(channel, lbr);
                         break;
                 }
                 case(KEEPWARM):
                 {
                         unsigned int duration = stoi(lbr.request_params["DURATION"]);
                         keep_warm(duration);
-                        compile_response(channel);
+                        compile_response(channel, lbr);
                         break;
                 }
 
@@ -150,7 +148,7 @@ void Controller::parse(unsigned int channel,char new_character){
             }
             else{
                 last_error = BADREQUEST;
-                compile_response(channel);
+                compile_response(channel, lbr);
             }
 
             respond(channel, &response_message_buffer[channel][0]);

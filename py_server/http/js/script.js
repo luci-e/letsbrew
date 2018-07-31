@@ -85,7 +85,9 @@ function send_data_web( form_id ) {
 	);
 
 	jqxhr.done( function( data ) {
-		console.log(data)
+		var textarea = $("#teaform_web_text");
+		var current_text = textarea.val();
+		textarea.val( current_text + data + '\n');
 	});
 
 	return false;

@@ -53,7 +53,8 @@ using namespace std;
 	LB_CMD string_to_lb_cmd( const string &str){
 	    if( str == "BREW" ) return BREW;
         if( str == "STATE" ) return STATE;
-        if( str == "KEEPWARM" ) return BREW;
+        if( str == "KEEPWARM" ) return KEEPWARM;
+        if( str == "CANCEL") return CANCEL;
         return NO_CMD;
 	}
 

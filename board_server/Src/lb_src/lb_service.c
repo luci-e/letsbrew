@@ -48,6 +48,7 @@
 #include "connection_config.h"
 #include "uart_support.h"
 
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -124,9 +125,9 @@ void lb_make_connection(void)
 void lb_receive_data(uint8_t* data_buffer, uint8_t bytes_no) {
 
     char cmd_str[bytes_no + 1];
-    sprintf( cmd_str, "%s", data_buffer);
+    snprintf( cmd_str, bytes_no + 1, "%s", data_buffer);
 
-  for( uint8_t i = 0; i < bytes_no; i++){
+  for( uint8_t i = 0; i < strlen(cmd_str); i++){
       lb_controller_receive_cb(1, data_buffer[i]);
   }
 }

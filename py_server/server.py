@@ -8,6 +8,7 @@ import time
 import threading
 import sys
 import random
+import re
 from threading import Thread
 SERIAL_PORT = ""
 BAUDRATE = 115200
@@ -22,18 +23,26 @@ queue = []
 qsem = threading.Semaphore(0)
 import paho.mqtt.client as mqtt
 
-def process( splitted_list):
-    err = splitted_list[0].partition(' ')
+reply_reg = re.compile("(\d+) (\d+) ([^,]+), ([^,]+), (\d+) brews, (\d+) seconds in keepwarm, (\d+) seconds heater on, (\d+) Watts used, (-?\d+) temperature, (\d+) seconds to go.*", flags = re.ASCII)
+
+def process( line  ):
     device_status = {}
-    device_status['code'] = int(err[0])
-    device_status['error'] = err[2]
-    device_status['state'] = splitted_list[1]
-    device_status['brews'] = splitted_list[2].lstrip(' ').partition(' ')[0]
-    device_status['seconds_in_keepwarm'] = splitted_list[3].lstrip(' ').partition(' ')[0]
-    device_status['seconds_heater_on'] = splitted_list[4].lstrip(' ').partition(' ')[0]
-    device_status['watts_used'] = splitted_list[5].lstrip(' ').partition(' ')[0]
-    device_status['temperature'] = splitted_list[6].lstrip(' ').partition(' ')[0]
-    device_status['seconds_to_go'] = splitted_list[7].lstrip(' ').partition(' ')[0]
+
+    try:
+        matches = reply_reg.match(line).groups()
+
+        device_status['code'] = int(matches[1])
+        device_status['error'] = matches[2]
+        device_status['state'] = matches[3]
+        device_status['brews'] = int(matches[4])
+        device_status['seconds_in_keepwarm'] = int(matches[5])
+        device_status['seconds_heater_on'] = int(matches[6])
+        device_status['watts_used'] = int(matches[7])
+        device_status['temperature'] =int( matches[8] )
+        device_status['seconds_to_go'] = int(matches[9])
+    except:
+        return None
+
     return device_status
 
 def serial_init_windows():
@@ -79,7 +88,7 @@ class brew_thread(Thread):
         self.done = True
     def run(self):
         while(True):
-            brew_request = build_request('B')
+            _, brew_request = build_request('B')
             print( sync_serial_read())
             sync_serial_write( brew_request )
             time.sleep(0.5)
@@ -126,11 +135,7 @@ class lb_request_handler( http.server.SimpleHTTPRequestHandler ):
 
             if( serial_stream ):
                 sync_serial_write( request )
-                while(True):
-                    line = sync_serial_read()
-                    if line is not None:
-                        break
-                self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + line ))
+                self.wfile.write(str.encode("HTTP/1.1 200 OK\r\nContent-type: text/html; charset=UTF-8\r\n\r\n" + "Request queued!" ))
 
 class HTTP_Server_Thread(Thread):    
     def __init__(self):
@@ -164,13 +169,13 @@ class Serial_reader_Thread(Thread):
                     print(line)
                 qlock.acquire()
                 queue.append(line)
+                qlock.release()
                 qsem.release()
 
             except:
                 print("exception in serial thread")
 
             finally:
-                qlock.release()
                 serial_lock.release()
 
 class Serial_poller_Thread(Thread):
@@ -186,8 +191,7 @@ class Serial_poller_Thread(Thread):
             time.sleep(4)
             try:
                 serial_lock.acquire()
-
-                state_request = build_request('S')
+                _, state_request = build_request('S')
                 serial_stream.write(bytes(state_request,'ascii'))
                 serial_stream.flush()
             except:
@@ -208,28 +212,18 @@ class TBThread(Thread):
         print("Thingsboard reporter started")
         while(not self.done):
             try:
-                #serial_lock.acquire()
-
-                #state_request = '1 STATE 1\0'
-                #serial_stream.write(bytes(state_request,'ascii'))
-                #serial_stream.flush()
-                #line = serial_stream.readline()
-                #print(line)
-                #serial_lock.release()
-                #continue
                 qsem.acquire()
                 qlock.acquire()
-                line = queue.pop()
-                splitted = line.decode('ascii').split(',')
-                if len(splitted)==8:
-                    try:
-                        status= process(splitted)
-                        print(status)
+                line = queue.pop().decode('ascii')
+                try:
+                    status= process(line)
+                    if(status is not None):
+                        print("Status: {}".format(json.dumps(status)))
                         client.publish('v1/devices/me/telemetry', json.dumps(status), 1)
-                    except:
-                        print('error in TBThread.process')
-                        print ( sys.exc_info()[0])
-                        raise
+                except:
+                    print('error in TBThread.process')
+                    print ( sys.exc_info()[0])
+                    raise
                         
 
             except:
@@ -245,7 +239,8 @@ class TBThread(Thread):
 def build_request( command ):
     cmd = ""
 
-    cmd += '"ID":{}\n'.format(random.randint(0, 32000))
+    cmd_id = random.randint(0, 32000)
+    cmd += '"ID":{}\n'.format(cmd_id)
     cmd += '"USR":{}\n'.format(random.randint(0, 32000))
     cmd += '"TIME":{}\n'.format(random.randint(0, 32000))
 
@@ -258,10 +253,12 @@ def build_request( command ):
         cmd += '"DURATION":3\n'
     elif('S' in command):
         cmd += '"CMD":"STATE"\n'
+    elif( 'C' in command):
+        cmd += '"CMD":"CANCEL"\n'
     else:
-        return None
+        return None, None
 
-    return cmd+'\0'
+    return cmd_id, cmd+'\0'
 
 tbthread = None
 def main():
@@ -316,11 +313,11 @@ def main():
 
         while(True):
             line = sys.stdin.readline()
-            cmd = build_request(line)
+            _, cmd = build_request(line)
 
             if(cmd is None):
                 if line == '\n':
-                    request = build_request('B')
+                    _, request = build_request('B')
                     sync_serial_write( request)
             else:
                 sync_serial_write( cmd )
